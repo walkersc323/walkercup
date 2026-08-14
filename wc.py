@@ -137,8 +137,15 @@ def calculate_hole_points(gross_scores, hcp_rank, stroke_diffs):
 if "scores" not in st.session_state:
     st.session_state.scores = {c: {} for c in COURSES}
 
-# --- HEADER & COURSE SELECTION ---
-st.title("⛳ The Walker Cup")
+if "selected_hole" not in st.session_state:
+    st.session_state.selected_hole = 1
+
+# --- HEADER (REDUCED FONT SIZE) ---
+st.markdown(
+    "<h3 style='text-align: center; margin-bottom: 10px;'>⛳ The Walker Cup</h3>",
+    unsafe_allow_html=True,
+)
+
 selected_course = st.selectbox("Select Course / Round", list(COURSES.keys()))
 stroke_diffs = get_strokes_off_lowest(selected_course)
 
@@ -150,32 +157,55 @@ tab1, tab2 = st.tabs(["📝 Hole Scoring", "🏆 Leaderboard"])
 with tab1:
     course_data = COURSES[selected_course]
 
-    col_selector, _ = st.columns([2, 1])
-    with col_selector:
-        hole_num = st.number_input(
-            "Select Hole Number", min_value=1, max_value=18, value=1, step=1
-        )
+    # --- 18 HOLE BUTTON GRID ---
+    st.write("**Select Hole:**")
 
+    # Front 9 Row
+    cols_front = st.columns(9)
+    for h_i in range(1, 10):
+        btn_type = (
+            "primary" if st.session_state.selected_hole == h_i else "secondary"
+        )
+        if cols_front[h_i - 1].button(
+            str(h_i), key=f"btn_{h_i}", type=btn_type, use_container_width=True
+        ):
+            st.session_state.selected_hole = h_i
+            st.rerun()
+
+    # Back 9 Row
+    cols_back = st.columns(9)
+    for h_i in range(10, 19):
+        btn_type = (
+            "primary" if st.session_state.selected_hole == h_i else "secondary"
+        )
+        if cols_back[h_i - 10].button(
+            str(h_i), key=f"btn_{h_i}", type=btn_type, use_container_width=True
+        ):
+            st.session_state.selected_hole = h_i
+            st.rerun()
+
+    hole_num = st.session_state.selected_hole
     hole_info = course_data["holes"][hole_num - 1]
     pts_val = get_hole_point_value(hole_info["hcp"])
 
+    # --- REDUCED HOLE HEADER CARD ---
     st.markdown(
         f"""
-        <div style="background-color: #1e293b; padding: 16px; border-radius: 12px; text-align: center; margin-bottom: 15px;">
-            <h1 style="color: #ffffff; margin: 0; font-size: 38px; font-weight: 800;">⛳ HOLE {hole_num}</h1>
+        <div style="background-color: #1e293b; padding: 10px; border-radius: 8px; text-align: center; margin-top: 10px; margin-bottom: 12px;">
+            <h3 style="color: #ffffff; margin: 0; font-size: 22px; font-weight: 700;">⛳ HOLE {hole_num}</h3>
         </div>
         """,
         unsafe_allow_html=True,
     )
 
+    # --- STREAMLINED STAT CARDS (PAR & HOLE VALUE ONLY) ---
     m_col1, m_col2 = st.columns(2)
     with m_col1:
         st.metric(label="PAR", value=hole_info["par"])
-        st.metric(label="HANDICAP RANK", value=f"#{hole_info['hcp']}")
     with m_col2:
-        st.metric(label="YARDAGE", value=f"{hole_info['yds']} yds")
         st.metric(label="HOLE VALUE", value=f"{pts_val} PTS")
 
+    # --- STROKES RECEIVED BADGES ---
     st.divider()
     st.write("**Strokes Received This Hole:**")
 
