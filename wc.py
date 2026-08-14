@@ -157,22 +157,21 @@ def get_total_standings():
 
 
 def parse_spoken_text(text):
-    """Robust parser that converts text or numbers into score assignments."""
     text_clean = text.lower().strip()
-    
+
     # Convert word numbers ("four") to digits ("4")
     for word, num in WORD_TO_NUM.items():
         text_clean = re.sub(rf"\b{word}\b", str(num), text_clean)
 
     scores_found = {}
-    
-    # 1. Look for Name + Number matches (e.g. "Scott 4", "Troy 5", "Allen 5")
+
     player_aliases = {
         "Scott": ["scott", "scw"],
         "Troy": ["troy", "tac"],
-        "Allen": ["allen", "atn", "alan"]
+        "Allen": ["allen", "atn", "alan"],
     }
-    
+
+    # 1. Name/Alias + Number match
     for player_name, aliases in player_aliases.items():
         for alias in aliases:
             match = re.search(rf"{alias}\s*[:=\-]?\s*(\d+)", text_clean)
@@ -182,11 +181,10 @@ def parse_spoken_text(text):
                     scores_found[player_name] = val
                 break
 
-    # 2. If name-based match found all three, return immediately
     if len(scores_found) == 3:
         return scores_found
 
-    # 3. Fallback: If 3 numbers exist in sequence ("4 5 5" or "4, 5, 5"), assign in order
+    # 2. Sequential fallback if 3 digits spoken ("4 6 5")
     all_numbers = re.findall(r"\b([1-9]|1[0-5])\b", text_clean)
     if len(all_numbers) >= 3:
         player_order = ["Scott", "Troy", "Allen"]
@@ -310,33 +308,43 @@ with tab1:
     st.markdown("<div style='margin-top: 15px;'></div>", unsafe_allow_html=True)
     st.subheader("📝 Enter Gross Scores")
 
-    # --- VOICE INPUT & PARSER ---
+    # Dynamic Voice Field Key
+    voice_key = f"voice_{selected_course}_{hole_num}"
+
+    # VOICE INPUT
     voice_input = st.text_input(
-        "🎙️ Dictate Scores (e.g. 'Scott 4 Troy 5 Allen 5' or '4 5 5')",
-        key=f"voice_{selected_course}_{hole_num}",
+        "🎙️ Dictate Scores (e.g. 'Scott 4 Troy 6 Allen 5')",
+        key=voice_key,
     )
 
+    # Initialize default scores with current saved value or Par
     saved_scores = st.session_state.scores[selected_course].get(hole_num, {})
     current_scores = {
         p: saved_scores.get(p, hole_info["par"]) for p in PLAYERS
     }
 
+    # IF VOICE INPUT WAS GIVEN -> PARSE AND DIRECTLY OVERWRITE SESSION STATE
     if voice_input:
         parsed_results = parse_spoken_text(voice_input)
         for p_name, val in parsed_results.items():
             current_scores[p_name] = val
+            widget_key = f"{selected_course}_{hole_num}_{p_name}"
+            st.session_state[widget_key] = val
 
-    # Render inputs pre-filled with parsed values
+    # Render number inputs tied to st.session_state
     cols = st.columns(3)
     user_inputs = {}
     for i, p in enumerate(PLAYERS.keys()):
+        w_key = f"{selected_course}_{hole_num}_{p}"
+        if w_key not in st.session_state:
+            st.session_state[w_key] = current_scores[p]
+
         with cols[i]:
             user_inputs[p] = st.number_input(
                 f"{p}",
                 min_value=1,
                 max_value=15,
-                value=current_scores[p],
-                key=f"{selected_course}_{hole_num}_{p}",
+                key=w_key,
             )
 
     if st.button("💾 Save Score for Hole", type="primary", use_container_width=True):
