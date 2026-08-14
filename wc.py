@@ -134,6 +134,19 @@ def calculate_hole_points(gross_scores, hcp_rank, stroke_diffs):
     return net_scores, pts_won
 
 
+def get_total_standings():
+    totals = {p: 0 for p in PLAYERS}
+    for c_name, c_info in COURSES.items():
+        s_diffs = get_strokes_off_lowest(c_name)
+        for h_num, gross_dict in st.session_state.scores[c_name].items():
+            if len(gross_dict) == 3:  # Only tally once all 3 golfers have scores
+                h_info = c_info["holes"][h_num - 1]
+                _, pts = calculate_hole_points(gross_dict, h_info["hcp"], s_diffs)
+                for p in PLAYERS:
+                    totals[p] += int(round(pts[p]))
+    return totals
+
+
 # --- INITIALIZE SESSION STATE ---
 if "scores" not in st.session_state:
     st.session_state.scores = {c: {} for c in COURSES}
@@ -147,17 +160,8 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# --- CALCULATE LIVE OVERALL TOURNAMENT TOTALS ---
-live_totals = {p: 0 for p in PLAYERS}
-for c_name, c_info in COURSES.items():
-    s_diffs = get_strokes_off_lowest(c_name)
-    for h_num, gross_dict in st.session_state.scores[c_name].items():
-        h_info = c_info["holes"][h_num - 1]
-        _, pts = calculate_hole_points(gross_dict, h_info["hcp"], s_diffs)
-        for p in PLAYERS:
-            live_totals[p] += int(round(pts[p]))
-
-# --- TOP SCOREBOARD BANNER (SCW, TAC, ATN) ---
+# --- TOP SCOREBOARD BANNER (DYNAMICALLY REFRESHES) ---
+live_totals = get_total_standings()
 top_score_cols = st.columns(3)
 for i, (player, initial) in enumerate(INITIALS.items()):
     with top_score_cols[i]:
@@ -283,6 +287,7 @@ with tab1:
     if st.button("💾 Save Score for Hole", type="primary", use_container_width=True):
         st.session_state.scores[selected_course][hole_num] = user_inputs
         st.success(f"Scores saved for Hole {hole_num}!")
+        st.rerun()  # Forces top header cards to recalculate & update immediately
 
     st.divider()
     st.subheader("📋 Mini Scorecard")
@@ -297,18 +302,19 @@ with tab1:
 
         if h_no in st.session_state.scores[selected_course]:
             gross = st.session_state.scores[selected_course][h_no]
-            nets, pts = calculate_hole_points(gross, h["hcp"], stroke_diffs)
+            if len(gross) == 3:
+                nets, pts = calculate_hole_points(gross, h["hcp"], stroke_diffs)
 
-            scott_str = f"{nets['Scott']} ({gross['Scott']})"
-            troy_str = f"{nets['Troy']} ({gross['Troy']})"
-            allen_str = f"{nets['Allen']} ({gross['Allen']})"
+                scott_str = f"{nets['Scott']} ({gross['Scott']})"
+                troy_str = f"{nets['Troy']} ({gross['Troy']})"
+                allen_str = f"{nets['Allen']} ({gross['Allen']})"
 
-            if pts["Scott"] > 0:
-                scott_win = True
-            if pts["Troy"] > 0:
-                troy_win = True
-            if pts["Allen"] > 0:
-                allen_win = True
+                if pts["Scott"] > 0:
+                    scott_win = True
+                if pts["Troy"] > 0:
+                    troy_win = True
+                if pts["Allen"] > 0:
+                    allen_win = True
 
         row_html = f"""
             <tr>
@@ -364,7 +370,7 @@ with tab1:
 with tab2:
     st.subheader("🏆 Tournament Standings")
 
-    total_standings = {p: 0 for p in PLAYERS}
+    total_standings = get_total_standings()
 
     st.markdown(
         """
@@ -385,14 +391,6 @@ with tab2:
     """,
         unsafe_allow_html=True,
     )
-
-    for c_name, c_info in COURSES.items():
-        s_diffs = get_strokes_off_lowest(c_name)
-        for h_num, gross_dict in st.session_state.scores[c_name].items():
-            h_info = c_info["holes"][h_num - 1]
-            _, pts = calculate_hole_points(gross_dict, h_info["hcp"], s_diffs)
-            for p in PLAYERS:
-                total_standings[p] += int(round(pts[p]))
 
     sorted_standings = sorted(
         total_standings.items(), key=lambda x: x[1], reverse=True
@@ -422,10 +420,11 @@ with tab2:
         c_pts = {p: 0 for p in PLAYERS}
 
         for h_num, gross_dict in st.session_state.scores[c_name].items():
-            h_info = c_info["holes"][h_num - 1]
-            _, pts = calculate_hole_points(gross_dict, h_info["hcp"], s_diffs)
-            for p in PLAYERS:
-                c_pts[p] += int(round(pts[p]))
+            if len(gross_dict) == 3:
+                h_info = c_info["holes"][h_num - 1]
+                _, pts = calculate_hole_points(gross_dict, h_info["hcp"], s_diffs)
+                for p in PLAYERS:
+                    c_pts[p] += int(round(pts[p]))
 
         m_cols = st.columns(3)
         for i, p in enumerate(PLAYERS.keys()):
