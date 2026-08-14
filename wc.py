@@ -12,6 +12,13 @@ st.set_page_config(
 PLAYERS = {"Scott": 17.3, "Troy": 24.2, "Allen": 27.5}
 INITIALS = {"Scott": "SCW", "Troy": "TAC", "Allen": "ATN"}
 
+# Word-to-Number mapping for dictation
+WORD_TO_NUM = {
+    "one": 1, "two": 2, "three": 3, "four": 4, "five": 5,
+    "six": 6, "seven": 7, "eight": 8, "nine": 9, "ten": 10,
+    "eleven": 11, "twelve": 12, "thirteen": 13, "fourteen": 14, "fifteen": 15
+}
+
 # --- COURSE DEFINITIONS ---
 COURSES = {
     "Frog Hollow (White Tees)": {
@@ -149,6 +156,46 @@ def get_total_standings():
     return totals
 
 
+def parse_spoken_text(text):
+    """Robust parser that converts text or numbers into score assignments."""
+    text_clean = text.lower().strip()
+    
+    # Convert word numbers ("four") to digits ("4")
+    for word, num in WORD_TO_NUM.items():
+        text_clean = re.sub(rf"\b{word}\b", str(num), text_clean)
+
+    scores_found = {}
+    
+    # 1. Look for Name + Number matches (e.g. "Scott 4", "Troy 5", "Allen 5")
+    player_aliases = {
+        "Scott": ["scott", "scw"],
+        "Troy": ["troy", "tac"],
+        "Allen": ["allen", "atn", "alan"]
+    }
+    
+    for player_name, aliases in player_aliases.items():
+        for alias in aliases:
+            match = re.search(rf"{alias}\s*[:=\-]?\s*(\d+)", text_clean)
+            if match:
+                val = int(match.group(1))
+                if 1 <= val <= 15:
+                    scores_found[player_name] = val
+                break
+
+    # 2. If name-based match found all three, return immediately
+    if len(scores_found) == 3:
+        return scores_found
+
+    # 3. Fallback: If 3 numbers exist in sequence ("4 5 5" or "4, 5, 5"), assign in order
+    all_numbers = re.findall(r"\b([1-9]|1[0-5])\b", text_clean)
+    if len(all_numbers) >= 3:
+        player_order = ["Scott", "Troy", "Allen"]
+        for idx in range(3):
+            scores_found[player_order[idx]] = int(all_numbers[idx])
+
+    return scores_found
+
+
 # --- INITIALIZE SESSION STATE ---
 if "scores" not in st.session_state:
     st.session_state.scores = {c: {} for c in COURSES}
@@ -263,36 +310,23 @@ with tab1:
     st.markdown("<div style='margin-top: 15px;'></div>", unsafe_allow_html=True)
     st.subheader("📝 Enter Gross Scores")
 
-    # --- VOICE PARSING LOGIC ---
+    # --- VOICE INPUT & PARSER ---
     voice_input = st.text_input(
-        "🎙️ Spoken Entry (e.g. 'Scott 4 Troy 5 Allen 5' or '4 5 5')",
+        "🎙️ Dictate Scores (e.g. 'Scott 4 Troy 5 Allen 5' or '4 5 5')",
         key=f"voice_{selected_course}_{hole_num}",
     )
 
-    # Initialize default scores with current saved value or Par
     saved_scores = st.session_state.scores[selected_course].get(hole_num, {})
     current_scores = {
         p: saved_scores.get(p, hole_info["par"]) for p in PLAYERS
     }
 
     if voice_input:
-        # Strategy A: Check for explicit names like "Scott 4", "Troy 5"
-        found_any = False
-        for p in PLAYERS:
-            match = re.search(rf"{p}\s*(\d+)", voice_input, re.IGNORECASE)
-            if match:
-                current_scores[p] = int(match.group(1))
-                found_any = True
+        parsed_results = parse_spoken_text(voice_input)
+        for p_name, val in parsed_results.items():
+            current_scores[p_name] = val
 
-        # Strategy B: If no names matched, grab 3 standalone numbers in order ("4 5 5")
-        if not found_any:
-            nums = re.findall(r"\b\d+\b", voice_input)
-            if len(nums) >= 3:
-                player_list = list(PLAYERS.keys())
-                for idx in range(3):
-                    current_scores[player_list[idx]] = int(nums[idx])
-
-    # Render number inputs pre-filled with the parsed scores
+    # Render inputs pre-filled with parsed values
     cols = st.columns(3)
     user_inputs = {}
     for i, p in enumerate(PLAYERS.keys()):
