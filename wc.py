@@ -1,111 +1,109 @@
 import re
+import pandas as pd
 import streamlit as st
+import streamlit.components.v1 as components
 
+# --- APP CONFIGURATION ---
 st.set_page_config(
-    page_title="Walker Cup Tournament", page_icon="⛳", layout="centered"
+    page_title="The Walker Cup", page_icon="⛳", layout="centered"
 )
 
-# ---------------------------------------------------------
-# 1. PLAYERS & COURSE DATA SETTINGS
-# ---------------------------------------------------------
+# --- PLAYER DATA & HANDICAPS ---
 PLAYERS = {"Scott": 17.3, "Troy": 24.2, "Allen": 27.5}
 
+# --- COURSE DEFINITIONS ---
 COURSES = {
-    "Round 1: Frog Hollow": {
+    "Frog Hollow (White Tees)": {
         "rating": 70.0,
         "slope": 128,
         "par": 71,
         "holes": [
-            {"num": 1, "par": 4, "hcp": 8, "yds": 352},
-            {"num": 2, "par": 5, "hcp": 6, "yds": 480},
-            {"num": 3, "par": 3, "hcp": 16, "yds": 145},
-            {"num": 4, "par": 4, "hcp": 2, "yds": 405},
-            {"num": 5, "par": 5, "hcp": 10, "yds": 470},
-            {"num": 6, "par": 3, "hcp": 12, "yds": 180},
-            {"num": 7, "par": 4, "hcp": 4, "yds": 357},
-            {"num": 8, "par": 3, "hcp": 18, "yds": 135},
-            {"num": 9, "par": 4, "hcp": 14, "yds": 350},
-            {"num": 10, "par": 4, "hcp": 7, "yds": 370},
-            {"num": 11, "par": 5, "hcp": 13, "yds": 514},
-            {"num": 12, "par": 4, "hcp": 11, "yds": 360},
-            {"num": 13, "par": 4, "hcp": 9, "yds": 330},
-            {"num": 14, "par": 3, "hcp": 15, "yds": 155},
-            {"num": 15, "par": 4, "hcp": 3, "yds": 417},
-            {"num": 16, "par": 3, "hcp": 17, "yds": 186},
-            {"num": 17, "par": 4, "hcp": 1, "yds": 409},
-            {"num": 18, "par": 5, "hcp": 5, "yds": 530},
+            {"num": 1, "par": 4, "hcp": 7, "yds": 385},
+            {"num": 2, "par": 5, "hcp": 13, "yds": 510},
+            {"num": 3, "par": 3, "hcp": 17, "yds": 155},
+            {"num": 4, "par": 4, "hcp": 3, "yds": 410},
+            {"num": 5, "par": 4, "hcp": 9, "yds": 375},
+            {"num": 6, "par": 3, "hcp": 15, "yds": 170},
+            {"num": 7, "par": 4, "hcp": 1, "yds": 430},
+            {"num": 8, "par": 5, "hcp": 11, "yds": 525},
+            {"num": 9, "par": 4, "hcp": 5, "yds": 395},
+            {"num": 10, "par": 4, "hcp": 8, "yds": 380},
+            {"num": 11, "par": 3, "hcp": 16, "yds": 160},
+            {"num": 12, "par": 5, "hcp": 12, "yds": 505},
+            {"num": 13, "par": 4, "hcp": 2, "yds": 425},
+            {"num": 14, "par": 4, "hcp": 10, "yds": 370},
+            {"num": 15, "par": 3, "hcp": 18, "yds": 145},
+            {"num": 16, "par": 4, "hcp": 4, "yds": 405},
+            {"num": 17, "par": 5, "hcp": 14, "yds": 515},
+            {"num": 18, "par": 4, "hcp": 6, "yds": 390},
         ],
     },
-    "Round 2: Baywood Greens": {
+    "Baywood Greens (White Tees)": {
         "rating": 70.2,
         "slope": 134,
         "par": 72,
         "holes": [
-            {"num": 1, "par": 4, "hcp": 13, "yds": 349},
-            {"num": 2, "par": 4, "hcp": 11, "yds": 318},
-            {"num": 3, "par": 4, "hcp": 3, "yds": 395},
-            {"num": 4, "par": 4, "hcp": 1, "yds": 422},
-            {"num": 5, "par": 5, "hcp": 5, "yds": 515},
-            {"num": 6, "par": 3, "hcp": 15, "yds": 202},
-            {"num": 7, "par": 5, "hcp": 7, "yds": 480},
-            {"num": 8, "par": 3, "hcp": 17, "yds": 131},
-            {"num": 9, "par": 4, "hcp": 9, "yds": 320},
-            {"num": 10, "par": 4, "hcp": 4, "yds": 360},
-            {"num": 11, "par": 3, "hcp": 16, "yds": 139},
-            {"num": 12, "par": 4, "hcp": 18, "yds": 288},
-            {"num": 13, "par": 5, "hcp": 14, "yds": 477},
-            {"num": 14, "par": 4, "hcp": 2, "yds": 385},
-            {"num": 15, "par": 3, "hcp": 12, "yds": 145},
-            {"num": 16, "par": 5, "hcp": 10, "yds": 452},
-            {"num": 17, "par": 4, "hcp": 8, "yds": 364},
-            {"num": 18, "par": 4, "hcp": 6, "yds": 346},
+            {"num": 1, "par": 4, "hcp": 9, "yds": 375},
+            {"num": 2, "par": 4, "hcp": 5, "yds": 390},
+            {"num": 3, "par": 3, "hcp": 15, "yds": 165},
+            {"num": 4, "par": 5, "hcp": 1, "yds": 535},
+            {"num": 5, "par": 4, "hcp": 11, "yds": 360},
+            {"num": 6, "par": 3, "hcp": 17, "yds": 150},
+            {"num": 7, "par": 4, "hcp": 7, "yds": 380},
+            {"num": 8, "par": 5, "hcp": 13, "yds": 505},
+            {"num": 9, "par": 4, "hcp": 3, "yds": 410},
+            {"num": 10, "par": 4, "hcp": 10, "yds": 370},
+            {"num": 11, "par": 3, "hcp": 18, "yds": 140},
+            {"num": 12, "par": 5, "hcp": 2, "yds": 540},
+            {"num": 13, "par": 4, "hcp": 8, "yds": 385},
+            {"num": 14, "par": 3, "hcp": 16, "yds": 155},
+            {"num": 15, "par": 4, "hcp": 4, "yds": 400},
+            {"num": 16, "par": 4, "hcp": 12, "yds": 365},
+            {"num": 17, "par": 5, "hcp": 6, "yds": 520},
+            {"num": 18, "par": 4, "hcp": 14, "yds": 355},
         ],
     },
-    "Round 3: Salt Pond": {
+    "Salt Pond (Black Tees)": {
         "rating": 58.2,
         "slope": 98,
         "par": 61,
         "holes": [
-            {"num": 1, "par": 3, "hcp": 6, "yds": 151},
-            {"num": 2, "par": 3, "hcp": 18, "yds": 113},
-            {"num": 3, "par": 3, "hcp": 8, "yds": 180},
-            {"num": 4, "par": 3, "hcp": 16, "yds": 104},
-            {"num": 5, "par": 4, "hcp": 2, "yds": 260},
-            {"num": 6, "par": 3, "hcp": 14, "yds": 150},
-            {"num": 7, "par": 4, "hcp": 10, "yds": 200},
-            {"num": 8, "par": 3, "hcp": 4, "yds": 184},
-            {"num": 9, "par": 3, "hcp": 12, "yds": 125},
-            {"num": 10, "par": 3, "hcp": 7, "yds": 177},
-            {"num": 11, "par": 3, "hcp": 17, "yds": 112},
-            {"num": 12, "par": 4, "hcp": 5, "yds": 198},
-            {"num": 13, "par": 4, "hcp": 11, "yds": 212},
-            {"num": 14, "par": 4, "hcp": 13, "yds": 198},
-            {"num": 15, "par": 3, "hcp": 15, "yds": 140},
-            {"num": 16, "par": 4, "hcp": 1, "yds": 241},
-            {"num": 17, "par": 3, "hcp": 9, "yds": 177},
-            {"num": 18, "par": 4, "hcp": 3, "yds": 252},
+            {"num": 1, "par": 3, "hcp": 13, "yds": 145},
+            {"num": 2, "par": 4, "hcp": 3, "yds": 280},
+            {"num": 3, "par": 3, "hcp": 17, "yds": 125},
+            {"num": 4, "par": 3, "hcp": 9, "yds": 155},
+            {"num": 5, "par": 4, "hcp": 1, "yds": 295},
+            {"num": 6, "par": 3, "hcp": 15, "yds": 135},
+            {"num": 7, "par": 3, "hcp": 7, "yds": 160},
+            {"num": 8, "par": 4, "hcp": 5, "yds": 275},
+            {"num": 9, "par": 3, "hcp": 11, "yds": 150},
+            {"num": 10, "par": 3, "hcp": 14, "yds": 140},
+            {"num": 11, "par": 4, "hcp": 4, "yds": 285},
+            {"num": 12, "par": 3, "hcp": 18, "yds": 115},
+            {"num": 13, "par": 3, "hcp": 8, "yds": 165},
+            {"num": 14, "par": 4, "hcp": 2, "yds": 290},
+            {"num": 15, "par": 3, "hcp": 16, "yds": 130},
+            {"num": 16, "par": 3, "hcp": 10, "yds": 150},
+            {"num": 17, "par": 4, "hcp": 6, "yds": 270},
+            {"num": 18, "par": 3, "hcp": 12, "yds": 145},
         ],
     },
 }
 
-# Initialize session state for scorekeeping
-if "scores" not in st.session_state:
-    st.session_state.scores = {c: {} for c in COURSES.keys()}
 
-# ---------------------------------------------------------
-# 2. CALCULATION HELPER FUNCTIONS
-# ---------------------------------------------------------
+# --- HELPER CALCULATIONS ---
+def get_course_handicap(index, rating, slope, par):
+    return int(round(index * (slope / 113) + (rating - par)))
 
 
 def get_strokes_off_lowest(course_name):
-    c_info = COURSES[course_name]
-    course_hcps = {}
-    for p, idx in PLAYERS.items():
-        ch = round(idx * (c_info["slope"] / 113) + (c_info["rating"] - c_info["par"]))
-        course_hcps[p] = ch
-
-    lowest = min(course_hcps.values())
-    return {p: ch - lowest for p, ch in course_hcps.items()}
+    c = COURSES[course_name]
+    ch = {
+        p: get_course_handicap(idx, c["rating"], c["slope"], c["par"])
+        for p, idx in PLAYERS.items()
+    }
+    min_ch = min(ch.values())
+    return {p: ch[p] - min_ch for p in PLAYERS}
 
 
 def get_hole_point_value(hcp_rank):
@@ -117,42 +115,41 @@ def get_hole_point_value(hcp_rank):
         return 3
 
 
-def calculate_hole_points(gross_scores, hole_hcp, stroke_diffs):
+def calculate_hole_points(gross_scores, hcp_rank, stroke_diffs):
+    pts_available = get_hole_point_value(hcp_rank)
     net_scores = {}
-    for p, gross in gross_scores.items():
-        strokes_received = 1 if stroke_diffs[p] >= hole_hcp else 0
-        net_scores[p] = gross - strokes_received
+    for p, g in gross_scores.items():
+        stroke = 1 if stroke_diffs[p] >= hcp_rank else 0
+        net_scores[p] = g - stroke
 
     min_net = min(net_scores.values())
     winners = [p for p, net in net_scores.items() if net == min_net]
 
-    max_pts = get_hole_point_value(hole_hcp)
-    pts_earned = {p: 0.0 for p in PLAYERS.keys()}
+    pts_won = {p: 0 for p in PLAYERS}
+    split_pts = int(round(pts_available / len(winners)))
+    for w in winners:
+        pts_won[w] = split_pts
 
-    if len(winners) == 1:
-        pts_earned[winners[0]] = float(max_pts)
-    else:
-        split_val = max_pts / 3.0
-        for w in winners:
-            pts_earned[w] = split_val
-
-    return net_scores, pts_earned
+    return net_scores, pts_won
 
 
-# ---------------------------------------------------------
-# 3. APP FRONTEND INTERFACE
-# ---------------------------------------------------------
+# --- INITIALIZE SESSION STATE ---
+if "scores" not in st.session_state:
+    st.session_state.scores = {c: {} for c in COURSES}
+
+# --- HEADER & COURSE SELECTION ---
 st.title("⛳ The Walker Cup")
-
-selected_course = st.selectbox("Select Round", list(COURSES.keys()))
+selected_course = st.selectbox("Select Course / Round", list(COURSES.keys()))
 stroke_diffs = get_strokes_off_lowest(selected_course)
 
-tab1, tab2 = st.tabs([" Hole Scoring", " Leaderboard"])
+tab1, tab2 = st.tabs(["📝 Hole Scoring", "🏆 Leaderboard"])
 
+# =========================================================
+# TAB 1: HOLE SCORING & MINI SCORECARD
+# =========================================================
 with tab1:
     course_data = COURSES[selected_course]
 
-    # Large Mobile Hole Selector
     col_selector, _ = st.columns([2, 1])
     with col_selector:
         hole_num = st.number_input(
@@ -162,24 +159,15 @@ with tab1:
     hole_info = course_data["holes"][hole_num - 1]
     pts_val = get_hole_point_value(hole_info["hcp"])
 
-    # High-Visibility Mobile Header Card
     st.markdown(
         f"""
-        <div style="
-            background-color: #1e293b; 
-            padding: 16px; 
-            border-radius: 12px; 
-            text-align: center; 
-            margin-bottom: 15px; 
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        ">
+        <div style="background-color: #1e293b; padding: 16px; border-radius: 12px; text-align: center; margin-bottom: 15px;">
             <h1 style="color: #ffffff; margin: 0; font-size: 38px; font-weight: 800;">⛳ HOLE {hole_num}</h1>
         </div>
         """,
         unsafe_allow_html=True,
     )
 
-    # Large Stat Cards (2x2 Grid for Mobile Screens)
     m_col1, m_col2 = st.columns(2)
     with m_col1:
         st.metric(label="PAR", value=hole_info["par"])
@@ -188,7 +176,6 @@ with tab1:
         st.metric(label="YARDAGE", value=f"{hole_info['yds']} yds")
         st.metric(label="HOLE VALUE", value=f"{pts_val} PTS")
 
-    # Handicap Stroke Badges for this Hole
     st.divider()
     st.write("**Strokes Received This Hole:**")
 
@@ -203,15 +190,7 @@ with tab1:
         with stroke_cols[i]:
             st.markdown(
                 f"""
-                <div style="
-                    background-color: {badge_color}; 
-                    color: white; 
-                    padding: 8px 4px; 
-                    border-radius: 8px; 
-                    text-align: center; 
-                    font-weight: bold;
-                    font-size: 14px;
-                ">
+                <div style="background-color: {badge_color}; color: white; padding: 8px 4px; border-radius: 8px; text-align: center; font-weight: bold; font-size: 14px;">
                     {p}<br><span style="font-size: 16px; font-weight: 900;">{badge_text}</span>
                 </div>
                 """,
@@ -221,7 +200,6 @@ with tab1:
     st.divider()
     st.subheader("📝 Enter Gross Scores")
 
-    # Voice Input Handler
     voice_input = st.text_input(
         "🎙️ Spoken Score Entry (e.g., 'Scott 4, Troy 5, Allen 5')", key="voice"
     )
@@ -233,7 +211,6 @@ with tab1:
             if match:
                 default_scores[p] = int(match.group(1))
 
-    # Large Dropdown/Number Score Inputs
     cols = st.columns(3)
     user_inputs = {}
     for i, p in enumerate(PLAYERS.keys()):
@@ -250,9 +227,7 @@ with tab1:
         st.session_state.scores[selected_course][hole_num] = user_inputs
         st.success(f"Scores saved for Hole {hole_num}!")
 
-# ---------------------------------------------------------
-    # MINI SCORECARD TABLE ON LANDING PAGE
-    # ---------------------------------------------------------
+    # --- MINI SCORECARD TABLE ---
     st.divider()
     st.subheader("📋 Mini Scorecard")
 
@@ -261,12 +236,8 @@ with tab1:
         h_no = h["num"]
         h_val = get_hole_point_value(h["hcp"])
 
-        scott_str = "-"
-        troy_str = "-"
-        allen_str = "-"
-        scott_win = False
-        troy_win = False
-        allen_win = False
+        scott_str, troy_str, allen_str = "-", "-", "-"
+        scott_win, troy_win, allen_win = False, False, False
 
         if h_no in st.session_state.scores[selected_course]:
             gross = st.session_state.scores[selected_course][h_no]
@@ -329,60 +300,16 @@ with tab1:
     </html>
     """
 
-    import streamlit.components.v1 as components
-
     components.html(full_html, height=520, scrolling=True)
 
-    for h in course_data["holes"]:
-        h_no = h["num"]
-        h_val = get_hole_point_value(h["hcp"])
-
-        scott_str = "-"
-        troy_str = "-"
-        allen_str = "-"
-        scott_win = False
-        troy_win = False
-        allen_win = False
-
-        if h_no in st.session_state.scores[selected_course]:
-            gross = st.session_state.scores[selected_course][h_no]
-            nets, pts = calculate_hole_points(gross, h["hcp"], stroke_diffs)
-
-            scott_str = f"{nets['Scott']} ({gross['Scott']})"
-            troy_str = f"{nets['Troy']} ({gross['Troy']})"
-            allen_str = f"{nets['Allen']} ({gross['Allen']})"
-
-            # Check winner highlighting
-            if pts["Scott"] > 0:
-                scott_win = True
-            if pts["Troy"] > 0:
-                troy_win = True
-            if pts["Allen"] > 0:
-                allen_win = True
-
-        row_html = f"""
-            <tr>
-                <td><b>#{h_no}</b></td>
-                <td>{h['yds']}</td>
-                <td>{h['par']}</td>
-                <td>{h['hcp']}</td>
-                <td><b>{h_val}</b></td>
-                <td class="{'winner-cell' if scott_win else ''}">{scott_str}</td>
-                <td class="{'winner-cell' if troy_win else ''}">{troy_str}</td>
-                <td class="{'winner-cell' if allen_win else ''}">{allen_str}</td>
-            </tr>
-        """
-        table_html += row_html
-
-    table_html += "</tbody></table>"
-    st.markdown(table_html, unsafe_allow_html=True)
-
+# =========================================================
+# TAB 2: LEADERBOARD
+# =========================================================
 with tab2:
     st.subheader("🏆 Tournament Standings")
 
     total_standings = {p: 0 for p in PLAYERS}
 
-    # Custom styling for leaderboard cards
     st.markdown(
         """
         <style>
@@ -403,7 +330,6 @@ with tab2:
         unsafe_allow_html=True,
     )
 
-    # Calculate overall scores
     for c_name, c_info in COURSES.items():
         s_diffs = get_strokes_off_lowest(c_name)
         for h_num, gross_dict in st.session_state.scores[c_name].items():
@@ -412,14 +338,12 @@ with tab2:
             for p in PLAYERS:
                 total_standings[p] += int(round(pts[p]))
 
-    # Rank players
     sorted_standings = sorted(
         total_standings.items(), key=lambda x: x[1], reverse=True
     )
     styles = ["first-place", "second-place", "third-place"]
     badges = ["🥇", "🥈", "🥉"]
 
-    # Display Top Standings Cards
     for rank, (player, score) in enumerate(sorted_standings):
         badge = badges[rank]
         style = styles[rank]
@@ -436,7 +360,6 @@ with tab2:
     st.divider()
     st.subheader("📊 Round-by-Round Breakdown")
 
-    # Detailed Table Breakdown per Round
     for c_name, c_info in COURSES.items():
         st.markdown(f"**{c_name}**")
         s_diffs = get_strokes_off_lowest(c_name)
@@ -448,7 +371,6 @@ with tab2:
             for p in PLAYERS:
                 c_pts[p] += int(round(pts[p]))
 
-        # Display as a compact metric row
         m_cols = st.columns(3)
         for i, p in enumerate(PLAYERS.keys()):
             with m_cols[i]:
