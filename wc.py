@@ -139,9 +139,11 @@ def get_total_standings():
     for c_name, c_info in COURSES.items():
         s_diffs = get_strokes_off_lowest(c_name)
         for h_num, gross_dict in st.session_state.scores[c_name].items():
-            if len(gross_dict) == 3:  # Only tally once all 3 golfers have scores
+            if len(gross_dict) == 3:
                 h_info = c_info["holes"][h_num - 1]
-                _, pts = calculate_hole_points(gross_dict, h_info["hcp"], s_diffs)
+                _, pts = calculate_hole_points(
+                    gross_dict, h_info["hcp"], s_diffs
+                )
                 for p in PLAYERS:
                     totals[p] += int(round(pts[p]))
     return totals
@@ -160,7 +162,7 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# --- TOP SCOREBOARD BANNER (DYNAMICALLY REFRESHES) ---
+# --- TOP SCOREBOARD BANNER ---
 live_totals = get_total_standings()
 top_score_cols = st.columns(3)
 for i, (player, initial) in enumerate(INITIALS.items()):
@@ -261,17 +263,36 @@ with tab1:
     st.markdown("<div style='margin-top: 15px;'></div>", unsafe_allow_html=True)
     st.subheader("📝 Enter Gross Scores")
 
+    # --- VOICE PARSING LOGIC ---
     voice_input = st.text_input(
-        "🎙️ Spoken Entry ('Scott 4, Troy 5, Allen 5')", key="voice"
+        "🎙️ Spoken Entry (e.g. 'Scott 4 Troy 5 Allen 5' or '4 5 5')",
+        key=f"voice_{selected_course}_{hole_num}",
     )
 
-    default_scores = {p: hole_info["par"] for p in PLAYERS}
+    # Initialize default scores with current saved value or Par
+    saved_scores = st.session_state.scores[selected_course].get(hole_num, {})
+    current_scores = {
+        p: saved_scores.get(p, hole_info["par"]) for p in PLAYERS
+    }
+
     if voice_input:
+        # Strategy A: Check for explicit names like "Scott 4", "Troy 5"
+        found_any = False
         for p in PLAYERS:
             match = re.search(rf"{p}\s*(\d+)", voice_input, re.IGNORECASE)
             if match:
-                default_scores[p] = int(match.group(1))
+                current_scores[p] = int(match.group(1))
+                found_any = True
 
+        # Strategy B: If no names matched, grab 3 standalone numbers in order ("4 5 5")
+        if not found_any:
+            nums = re.findall(r"\b\d+\b", voice_input)
+            if len(nums) >= 3:
+                player_list = list(PLAYERS.keys())
+                for idx in range(3):
+                    current_scores[player_list[idx]] = int(nums[idx])
+
+    # Render number inputs pre-filled with the parsed scores
     cols = st.columns(3)
     user_inputs = {}
     for i, p in enumerate(PLAYERS.keys()):
@@ -280,14 +301,14 @@ with tab1:
                 f"{p}",
                 min_value=1,
                 max_value=15,
-                value=default_scores[p],
+                value=current_scores[p],
                 key=f"{selected_course}_{hole_num}_{p}",
             )
 
     if st.button("💾 Save Score for Hole", type="primary", use_container_width=True):
         st.session_state.scores[selected_course][hole_num] = user_inputs
         st.success(f"Scores saved for Hole {hole_num}!")
-        st.rerun()  # Forces top header cards to recalculate & update immediately
+        st.rerun()
 
     st.divider()
     st.subheader("📋 Mini Scorecard")
@@ -422,7 +443,9 @@ with tab2:
         for h_num, gross_dict in st.session_state.scores[c_name].items():
             if len(gross_dict) == 3:
                 h_info = c_info["holes"][h_num - 1]
-                _, pts = calculate_hole_points(gross_dict, h_info["hcp"], s_diffs)
+                _, pts = calculate_hole_points(
+                    gross_dict, h_info["hcp"], s_diffs
+                )
                 for p in PLAYERS:
                     c_pts[p] += int(round(pts[p]))
 
