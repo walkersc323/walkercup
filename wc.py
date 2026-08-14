@@ -134,11 +134,16 @@ def calculate_hole_points(gross_scores, hcp_rank, stroke_diffs):
     winners = [p for p, net in net_scores.items() if net == min_net]
 
     pts_won = {p: 0 for p in PLAYERS}
-    split_pts = int(round(pts_available / len(winners)))
-    for w in winners:
-        pts_won[w] = split_pts
+    num_winners = len(winners)
 
-    return net_scores, pts_won
+    if num_winners == 1:
+        pts_won[winners[0]] = pts_available
+    elif num_winners in [2, 3]:
+        split_val = pts_available // 3
+        for w in winners:
+            pts_won[w] = split_val
+
+    return net_scores, pts_won, winners
 
 
 def get_total_standings():
@@ -148,18 +153,17 @@ def get_total_standings():
         for h_num, gross_dict in st.session_state.scores[c_name].items():
             if len(gross_dict) == 3:
                 h_info = c_info["holes"][h_num - 1]
-                _, pts = calculate_hole_points(
+                _, pts, _ = calculate_hole_points(
                     gross_dict, h_info["hcp"], s_diffs
                 )
                 for p in PLAYERS:
-                    totals[p] += int(round(pts[p]))
+                    totals[p] += pts[p]
     return totals
 
 
 def parse_spoken_text(text):
     text_clean = text.lower().strip()
 
-    # Convert word numbers ("four") to digits ("4")
     for word, num in WORD_TO_NUM.items():
         text_clean = re.sub(rf"\b{word}\b", str(num), text_clean)
 
@@ -171,7 +175,6 @@ def parse_spoken_text(text):
         "Allen": ["allen", "atn", "alan"],
     }
 
-    # 1. Name/Alias + Number match
     for player_name, aliases in player_aliases.items():
         for alias in aliases:
             match = re.search(rf"{alias}\s*[:=\-]?\s*(\d+)", text_clean)
@@ -184,7 +187,6 @@ def parse_spoken_text(text):
     if len(scores_found) == 3:
         return scores_found
 
-    # 2. Sequential fallback if 3 digits spoken ("4 6 5")
     all_numbers = re.findall(r"\b([1-9]|1[0-5])\b", text_clean)
     if len(all_numbers) >= 3:
         player_order = ["Scott", "Troy", "Allen"]
@@ -308,22 +310,18 @@ with tab1:
     st.markdown("<div style='margin-top: 15px;'></div>", unsafe_allow_html=True)
     st.subheader("📝 Enter Gross Scores")
 
-    # Dynamic Voice Field Key
     voice_key = f"voice_{selected_course}_{hole_num}"
 
-    # VOICE INPUT
     voice_input = st.text_input(
         "🎙️ Dictate Scores (e.g. 'Scott 4 Troy 6 Allen 5')",
         key=voice_key,
     )
 
-    # Initialize default scores with current saved value or Par
     saved_scores = st.session_state.scores[selected_course].get(hole_num, {})
     current_scores = {
         p: saved_scores.get(p, hole_info["par"]) for p in PLAYERS
     }
 
-    # IF VOICE INPUT WAS GIVEN -> PARSE AND DIRECTLY OVERWRITE SESSION STATE
     if voice_input:
         parsed_results = parse_spoken_text(voice_input)
         for p_name, val in parsed_results.items():
@@ -331,7 +329,6 @@ with tab1:
             widget_key = f"{selected_course}_{hole_num}_{p_name}"
             st.session_state[widget_key] = val
 
-    # Render number inputs tied to st.session_state
     cols = st.columns(3)
     user_inputs = {}
     for i, p in enumerate(PLAYERS.keys()):
@@ -361,23 +358,41 @@ with tab1:
         h_val = get_hole_point_value(h["hcp"])
 
         scott_str, troy_str, allen_str = "-", "-", "-"
-        scott_win, troy_win, allen_win = False, False, False
+        scott_style, troy_style, allen_style = "", "", ""
 
         if h_no in st.session_state.scores[selected_course]:
             gross = st.session_state.scores[selected_course][h_no]
             if len(gross) == 3:
-                nets, pts = calculate_hole_points(gross, h["hcp"], stroke_diffs)
+                nets, pts, winners = calculate_hole_points(
+                    gross, h["hcp"], stroke_diffs
+                )
 
                 scott_str = f"{nets['Scott']} ({gross['Scott']})"
                 troy_str = f"{nets['Troy']} ({gross['Troy']})"
                 allen_str = f"{nets['Allen']} ({gross['Allen']})"
 
-                if pts["Scott"] > 0:
-                    scott_win = True
-                if pts["Troy"] > 0:
-                    troy_win = True
-                if pts["Allen"] > 0:
-                    allen_win = True
+                is_tie = len(winners) > 1
+
+                # Sole Winner = Green (#15803d, white text)
+                # Tie Winner = Yellow (#eab308, dark text)
+                if "Scott" in winners:
+                    scott_style = (
+                        "background-color: #eab308; color: #000000; font-weight: bold;"
+                        if is_tie
+                        else "background-color: #15803d; color: #ffffff; font-weight: bold;"
+                    )
+                if "Troy" in winners:
+                    troy_style = (
+                        "background-color: #eab308; color: #000000; font-weight: bold;"
+                        if is_tie
+                        else "background-color: #15803d; color: #ffffff; font-weight: bold;"
+                    )
+                if "Allen" in winners:
+                    allen_style = (
+                        "background-color: #eab308; color: #000000; font-weight: bold;"
+                        if is_tie
+                        else "background-color: #15803d; color: #ffffff; font-weight: bold;"
+                    )
 
         row_html = f"""
             <tr>
@@ -386,9 +401,9 @@ with tab1:
                 <td style="padding: 6px 4px; border: 1px solid #334155; text-align: center;">{h['par']}</td>
                 <td style="padding: 6px 4px; border: 1px solid #334155; text-align: center;">{h['hcp']}</td>
                 <td style="padding: 6px 4px; border: 1px solid #334155; text-align: center;"><b>{h_val}</b></td>
-                <td style="padding: 6px 4px; border: 1px solid #334155; text-align: center; {'background-color: #15803d; color: white; font-weight: bold;' if scott_win else ''}">{scott_str}</td>
-                <td style="padding: 6px 4px; border: 1px solid #334155; text-align: center; {'background-color: #15803d; color: white; font-weight: bold;' if troy_win else ''}">{troy_str}</td>
-                <td style="padding: 6px 4px; border: 1px solid #334155; text-align: center; {'background-color: #15803d; color: white; font-weight: bold;' if allen_win else ''}">{allen_str}</td>
+                <td style="padding: 6px 4px; border: 1px solid #334155; text-align: center; {scott_style}">{scott_str}</td>
+                <td style="padding: 6px 4px; border: 1px solid #334155; text-align: center; {troy_style}">{troy_str}</td>
+                <td style="padding: 6px 4px; border: 1px solid #334155; text-align: center; {allen_style}">{allen_str}</td>
             </tr>
         """
         table_rows += row_html
@@ -485,11 +500,11 @@ with tab2:
         for h_num, gross_dict in st.session_state.scores[c_name].items():
             if len(gross_dict) == 3:
                 h_info = c_info["holes"][h_num - 1]
-                _, pts = calculate_hole_points(
+                _, pts, _ = calculate_hole_points(
                     gross_dict, h_info["hcp"], s_diffs
                 )
                 for p in PLAYERS:
-                    c_pts[p] += int(round(pts[p]))
+                    c_pts[p] += pts[p]
 
         m_cols = st.columns(3)
         for i, p in enumerate(PLAYERS.keys()):
