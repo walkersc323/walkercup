@@ -140,9 +140,9 @@ if "scores" not in st.session_state:
 if "selected_hole" not in st.session_state:
     st.session_state.selected_hole = 1
 
-# --- HEADER (REDUCED FONT SIZE) ---
+# --- HEADER (COMPACT TITLE) ---
 st.markdown(
-    "<h3 style='text-align: center; margin-bottom: 10px;'>⛳ The Walker Cup</h3>",
+    "<h4 style='text-align: center; margin-top: -10px; margin-bottom: 5px;'>⛳ The Walker Cup</h4>",
     unsafe_allow_html=True,
 )
 
@@ -157,10 +157,33 @@ tab1, tab2 = st.tabs(["📝 Hole Scoring", "🏆 Leaderboard"])
 with tab1:
     course_data = COURSES[selected_course]
 
-    # --- 18 HOLE BUTTON GRID ---
+    # --- CUSTOM MOBILE GRID CSS ---
+    # Prevents Streamlit columns from collapsing into a single vertical list on small screens
+    st.markdown(
+        """
+        <style>
+        div[data-testid="stHorizontalBlock"] {
+            display: flex !important;
+            flex-direction: row !important;
+            flex-wrap: nowrap !important;
+            gap: 2px !important;
+        }
+        div[data-testid="stHorizontalBlock"] > div {
+            min-width: 0 !important;
+            flex: 1 1 0 !important;
+        }
+        div[data-testid="stHorizontalBlock"] button {
+            padding: 4px 0px !important;
+            font-size: 13px !important;
+        }
+        </style>
+    """,
+        unsafe_allow_html=True,
+    )
+
     st.write("**Select Hole:**")
 
-    # Front 9 Row
+    # Front 9 Row (Forces 9 columns across on mobile)
     cols_front = st.columns(9)
     for h_i in range(1, 10):
         btn_type = (
@@ -172,7 +195,7 @@ with tab1:
             st.session_state.selected_hole = h_i
             st.rerun()
 
-    # Back 9 Row
+    # Back 9 Row (Forces 9 columns across on mobile)
     cols_back = st.columns(9)
     for h_i in range(10, 19):
         btn_type = (
@@ -188,31 +211,22 @@ with tab1:
     hole_info = course_data["holes"][hole_num - 1]
     pts_val = get_hole_point_value(hole_info["hcp"])
 
-    # --- REDUCED HOLE HEADER CARD ---
+    # --- ULTRA-COMPACT HOLE HEADER + PAR / PTS ROW ---
     st.markdown(
         f"""
-        <div style="background-color: #1e293b; padding: 10px; border-radius: 8px; text-align: center; margin-top: 10px; margin-bottom: 12px;">
-            <h3 style="color: #ffffff; margin: 0; font-size: 22px; font-weight: 700;">⛳ HOLE {hole_num}</h3>
+        <div style="background-color: #1e293b; padding: 8px 12px; border-radius: 8px; margin-top: 10px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
+            <span style="color: #ffffff; font-size: 20px; font-weight: 800;">⛳ HOLE {hole_num}</span>
+            <span style="color: #94a3b8; font-size: 14px; font-weight: 600;">PAR <b>{hole_info['par']}</b> &nbsp;|&nbsp; <b>{pts_val} PTS</b></span>
         </div>
         """,
         unsafe_allow_html=True,
     )
 
-    # --- STREAMLINED STAT CARDS (PAR & HOLE VALUE ONLY) ---
-    m_col1, m_col2 = st.columns(2)
-    with m_col1:
-        st.metric(label="PAR", value=hole_info["par"])
-    with m_col2:
-        st.metric(label="HOLE VALUE", value=f"{pts_val} PTS")
-
     # --- STROKES RECEIVED BADGES ---
-    st.divider()
-    st.write("**Strokes Received This Hole:**")
-
     stroke_cols = st.columns(3)
     for i, p in enumerate(PLAYERS.keys()):
         strokes_on_hole = 1 if stroke_diffs[p] >= hole_info["hcp"] else 0
-        badge_color = "#10b981" if strokes_on_hole > 0 else "#64748b"
+        badge_color = "#10b981" if strokes_on_hole > 0 else "#475569"
         badge_text = (
             f"+{strokes_on_hole} Stroke" if strokes_on_hole > 0 else "Scratch"
         )
@@ -220,18 +234,18 @@ with tab1:
         with stroke_cols[i]:
             st.markdown(
                 f"""
-                <div style="background-color: {badge_color}; color: white; padding: 8px 4px; border-radius: 8px; text-align: center; font-weight: bold; font-size: 14px;">
-                    {p}<br><span style="font-size: 16px; font-weight: 900;">{badge_text}</span>
+                <div style="background-color: {badge_color}; color: white; padding: 4px 2px; border-radius: 6px; text-align: center; font-size: 12px;">
+                    <b>{p}</b><br><span style="font-size: 13px; font-weight: 800;">{badge_text}</span>
                 </div>
                 """,
                 unsafe_allow_html=True,
             )
 
-    st.divider()
+    st.markdown("<div style='margin-top: 15px;'></div>", unsafe_allow_html=True)
     st.subheader("📝 Enter Gross Scores")
 
     voice_input = st.text_input(
-        "🎙️ Spoken Score Entry (e.g., 'Scott 4, Troy 5, Allen 5')", key="voice"
+        "🎙️ Spoken Entry ('Scott 4, Troy 5, Allen 5')", key="voice"
     )
 
     default_scores = {p: hole_info["par"] for p in PLAYERS}
