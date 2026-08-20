@@ -203,6 +203,17 @@ if "scores" not in st.session_state:
 if "selected_hole" not in st.session_state:
     st.session_state.selected_hole = 1
 
+if "selected_course" not in st.session_state:
+    st.session_state.selected_course = list(COURSES.keys())[0]
+
+selected_course = st.session_state.selected_course
+stroke_diffs = get_strokes_off_lowest(selected_course)
+
+course_data = COURSES[selected_course]
+hole_num = st.session_state.selected_hole
+hole_info = course_data["holes"][hole_num - 1]
+pts_val = get_hole_point_value(hole_info["hcp"])
+
 # =========================================================
 # 1. TOP HEADER: TITLE & 3 SCORE BOXES
 # =========================================================
@@ -223,26 +234,17 @@ for i, (player, initial) in enumerate(INITIALS.items()):
         """
         st.markdown(card_html, unsafe_allow_html=True)
 
-selected_course = st.selectbox("Select Course / Round", list(COURSES.keys()))
-stroke_diffs = get_strokes_off_lowest(selected_course)
-
-course_data = COURSES[selected_course]
-hole_num = st.session_state.selected_hole
-hole_info = course_data["holes"][hole_num - 1]
-pts_val = get_hole_point_value(hole_info["hcp"])
-
 # =========================================================
-# 2. HOLE INFORMATION & STROKE BADGES (TROY & ALLEN)
+# 2. HOLE INFORMATION (DARK GREEN BANNER) & STROKE BADGES
 # =========================================================
 hdr_html = f"""
-<div style="background-color: #1e293b; padding: 8px 12px; border-radius: 8px; margin-top: 5px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
+<div style="background-color: #15803d; padding: 8px 12px; border-radius: 8px; margin-top: 5px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
     <span style="color: #ffffff; font-size: 20px; font-weight: 800;">⛳ HOLE {hole_num}</span>
-    <span style="color: #94a3b8; font-size: 14px; font-weight: 600;">PAR <b>{hole_info['par']}</b> &nbsp;|&nbsp; <b>{pts_val} PTS</b></span>
+    <span style="color: #f8fafc; font-size: 14px; font-weight: 600;">PAR <b>{hole_info['par']}</b> &nbsp;|&nbsp; <b>{pts_val} PTS</b></span>
 </div>
 """
 st.markdown(hdr_html, unsafe_allow_html=True)
 
-# Strokes received boxes specifically for Troy & Allen
 troy_strokes = 1 if stroke_diffs["Troy"] >= hole_info["hcp"] else 0
 allen_strokes = 1 if stroke_diffs["Allen"] >= hole_info["hcp"] else 0
 
@@ -273,7 +275,7 @@ with badge_cols[1]:
     )
 
 # =========================================================
-# 3. LOWER SECTION: TABS (HOLE SCORING & LEADERBOARD)
+# 3. TABS: HOLE SCORING & LEADERBOARD
 # =========================================================
 tab1, tab2 = st.tabs(["📝 Hole Scoring", "🏆 Leaderboard"])
 
@@ -366,100 +368,6 @@ with tab1:
         st.success(f"Scores saved for Hole {hole_num}!")
         st.rerun()
 
-    st.divider()
-    st.subheader("📋 Mini Scorecard")
-
-    table_rows = ""
-    for h in course_data["holes"]:
-        h_no = h["num"]
-        h_val = get_hole_point_value(h["hcp"])
-
-        scott_str, troy_str, allen_str = "-", "-", "-"
-        scott_style, troy_style, allen_style = "", "", ""
-
-        if h_no in st.session_state.scores[selected_course]:
-            gross = st.session_state.scores[selected_course][h_no]
-            if len(gross) == 3:
-                nets, pts, winners = calculate_hole_points(
-                    gross, h["hcp"], stroke_diffs
-                )
-
-                scott_str = f"{nets['Scott']} ({gross['Scott']})"
-                troy_str = f"{nets['Troy']} ({gross['Troy']})"
-                allen_str = f"{nets['Allen']} ({gross['Allen']})"
-
-                is_tie = len(winners) > 1
-
-                if "Scott" in winners:
-                    scott_style = (
-                        "background-color: #eab308; color: #000000; font-weight: bold;"
-                        if is_tie
-                        else "background-color: #15803d; color: #ffffff; font-weight: bold;"
-                    )
-                if "Troy" in winners:
-                    troy_style = (
-                        "background-color: #eab308; color: #000000; font-weight: bold;"
-                        if is_tie
-                        else "background-color: #15803d; color: #ffffff; font-weight: bold;"
-                    )
-                if "Allen" in winners:
-                    allen_style = (
-                        "background-color: #eab308; color: #000000; font-weight: bold;"
-                        if is_tie
-                        else "background-color: #15803d; color: #ffffff; font-weight: bold;"
-                    )
-
-        row_html = f"""
-            <tr>
-                <td style="padding: 6px 4px; border: 1px solid #334155; text-align: center;"><b>#{h_no}</b></td>
-                <td style="padding: 6px 4px; border: 1px solid #334155; text-align: center;">{h['yds']}</td>
-                <td style="padding: 6px 4px; border: 1px solid #334155; text-align: center;">{h['par']}</td>
-                <td style="padding: 6px 4px; border: 1px solid #334155; text-align: center;">{h['hcp']}</td>
-                <td style="padding: 6px 4px; border: 1px solid #334155; text-align: center;"><b>{h_val}</b></td>
-                <td style="padding: 6px 4px; border: 1px solid #334155; text-align: center; {scott_style}">{scott_str}</td>
-                <td style="padding: 6px 4px; border: 1px solid #334155; text-align: center; {troy_style}">{troy_str}</td>
-                <td style="padding: 6px 4px; border: 1px solid #334155; text-align: center; {allen_style}">{allen_str}</td>
-            </tr>
-        """
-        table_rows += row_html
-
-    full_html = f"""
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <style>
-            body {{ font-family: sans-serif; background-color: transparent; color: #ffffff; margin: 0; padding: 0; }}
-            table {{ width: 100%; border-collapse: collapse; font-size: 13px; }}
-            th {{ background-color: #0f172a; color: #ffffff; padding: 8px 4px; border: 1px solid #334155; font-size: 12px; }}
-        </style>
-    </head>
-    <body>
-        <table>
-            <thead>
-                <tr>
-                    <th>Hole</th>
-                    <th>Yds</th>
-                    <th>Par</th>
-                    <th>Hcp</th>
-                    <th>Pts</th>
-                    <th>Scott</th>
-                    <th>Troy</th>
-                    <th>Allen</th>
-                </tr>
-            </thead>
-            <tbody>
-                {table_rows}
-            </tbody>
-        </table>
-    </body>
-    </html>
-    """
-
-    components.html(full_html, height=520, scrolling=True)
-
-# =========================================================
-# LEADERBOARD TAB
-# =========================================================
 with tab2:
     st.subheader("🏆 Tournament Standings")
 
@@ -526,3 +434,112 @@ with tab2:
             with m_cols[i]:
                 st.metric(label=p, value=f"{c_pts[p]} pts")
         st.write("---")
+
+# =========================================================
+# 4. MINI SCORECARD (POSITIONED BELOW TABS)
+# =========================================================
+st.divider()
+st.subheader("📋 Mini Scorecard")
+
+table_rows = ""
+for h in course_data["holes"]:
+    h_no = h["num"]
+    h_val = get_hole_point_value(h["hcp"])
+
+    scott_str, troy_str, allen_str = "-", "-", "-"
+    scott_style, troy_style, allen_style = "", "", ""
+
+    if h_no in st.session_state.scores[selected_course]:
+        gross = st.session_state.scores[selected_course][h_no]
+        if len(gross) == 3:
+            nets, pts, winners = calculate_hole_points(
+                gross, h["hcp"], stroke_diffs
+            )
+
+            scott_str = f"{nets['Scott']} ({gross['Scott']})"
+            troy_str = f"{nets['Troy']} ({gross['Troy']})"
+            allen_str = f"{nets['Allen']} ({gross['Allen']})"
+
+            is_tie = len(winners) > 1
+
+            if "Scott" in winners:
+                scott_style = (
+                    "background-color: #eab308; color: #000000; font-weight: bold;"
+                    if is_tie
+                    else "background-color: #15803d; color: #ffffff; font-weight: bold;"
+                )
+            if "Troy" in winners:
+                troy_style = (
+                    "background-color: #eab308; color: #000000; font-weight: bold;"
+                    if is_tie
+                    else "background-color: #15803d; color: #ffffff; font-weight: bold;"
+                )
+            if "Allen" in winners:
+                allen_style = (
+                    "background-color: #eab308; color: #000000; font-weight: bold;"
+                    if is_tie
+                    else "background-color: #15803d; color: #ffffff; font-weight: bold;"
+                )
+
+    row_html = f"""
+        <tr>
+            <td style="padding: 6px 4px; border: 1px solid #334155; text-align: center;"><b>#{h_no}</b></td>
+            <td style="padding: 6px 4px; border: 1px solid #334155; text-align: center;">{h['yds']}</td>
+            <td style="padding: 6px 4px; border: 1px solid #334155; text-align: center;">{h['par']}</td>
+            <td style="padding: 6px 4px; border: 1px solid #334155; text-align: center;">{h['hcp']}</td>
+            <td style="padding: 6px 4px; border: 1px solid #334155; text-align: center;"><b>{h_val}</b></td>
+            <td style="padding: 6px 4px; border: 1px solid #334155; text-align: center; {scott_style}">{scott_str}</td>
+            <td style="padding: 6px 4px; border: 1px solid #334155; text-align: center; {troy_style}">{troy_str}</td>
+            <td style="padding: 6px 4px; border: 1px solid #334155; text-align: center; {allen_style}">{allen_str}</td>
+        </tr>
+    """
+    table_rows += row_html
+
+full_html = f"""
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {{ font-family: sans-serif; background-color: transparent; color: #ffffff; margin: 0; padding: 0; }}
+        table {{ width: 100%; border-collapse: collapse; font-size: 13px; }}
+        th {{ background-color: #0f172a; color: #ffffff; padding: 8px 4px; border: 1px solid #334155; font-size: 12px; }}
+    </style>
+</head>
+<body>
+    <table>
+        <thead>
+            <tr>
+                <th>Hole</th>
+                <th>Yds</th>
+                <th>Par</th>
+                <th>Hcp</th>
+                <th>Pts</th>
+                <th>Scott</th>
+                <th>Troy</th>
+                <th>Allen</th>
+            </tr>
+        </thead>
+        <tbody>
+            {table_rows}
+        </tbody>
+    </table>
+</body>
+</html>
+"""
+
+components.html(full_html, height=520, scrolling=True)
+
+# =========================================================
+# 5. COURSE SELECTOR (RELOCATED TO BOTTOM)
+# =========================================================
+st.divider()
+selected_course_input = st.selectbox(
+    "⚙️ Select Course / Round",
+    list(COURSES.keys()),
+    index=list(COURSES.keys()).index(st.session_state.selected_course),
+    key="course_picker_bottom",
+)
+
+if selected_course_input != st.session_state.selected_course:
+    st.session_state.selected_course = selected_course_input
+    st.rerun()
