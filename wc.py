@@ -161,6 +161,21 @@ def get_total_standings():
     return totals
 
 
+def get_course_standings(course_name):
+    totals = {p: 0 for p in PLAYERS}
+    c_info = COURSES[course_name]
+    s_diffs = get_strokes_off_lowest(course_name)
+    for h_num, gross_dict in st.session_state.scores[course_name].items():
+        if len(gross_dict) == 3:
+            h_info = c_info["holes"][h_num - 1]
+            _, pts, _ = calculate_hole_points(
+                gross_dict, h_info["hcp"], s_diffs
+            )
+            for p in PLAYERS:
+                totals[p] += pts[p]
+    return totals
+
+
 def parse_spoken_text(text):
     text_clean = text.lower().strip()
 
@@ -235,12 +250,12 @@ for i, (player, initial) in enumerate(INITIALS.items()):
         st.markdown(card_html, unsafe_allow_html=True)
 
 # =========================================================
-# 2. HOLE INFORMATION (DARK GREEN BANNER) & STROKE BADGES
+# 2. HOLE INFORMATION (DARK GREEN BANNER WITH HCP) & STROKE BADGES
 # =========================================================
 hdr_html = f"""
 <div style="background-color: #15803d; padding: 8px 12px; border-radius: 8px; margin-top: 5px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
     <span style="color: #ffffff; font-size: 20px; font-weight: 800;">⛳ HOLE {hole_num}</span>
-    <span style="color: #f8fafc; font-size: 14px; font-weight: 600;">PAR <b>{hole_info['par']}</b> &nbsp;|&nbsp; <b>{pts_val} PTS</b></span>
+    <span style="color: #ffffff; font-size: 14px; font-weight: 700;">PAR <b>{hole_info['par']}</b> &nbsp;|&nbsp; <b>{pts_val} PTS</b> &nbsp;|&nbsp; HCP <b>{hole_info['hcp']}</b></span>
 </div>
 """
 st.markdown(hdr_html, unsafe_allow_html=True)
@@ -369,12 +384,12 @@ if st.button("💾 Save Score for Hole", type="primary", use_container_width=Tru
     st.rerun()
 
 # =========================================================
-# 4. LEADERBOARD STANDINGS
+# 4. CURRENT COURSE LEADERBOARD STANDINGS
 # =========================================================
 st.markdown("<div style='margin-top: 15px;'></div>", unsafe_allow_html=True)
-st.subheader("🏆 Tournament Standings")
+st.subheader(f"🏆 Round Standings ({selected_course})")
 
-total_standings = get_total_standings()
+course_standings = get_course_standings(selected_course)
 
 st.markdown(
     """
@@ -397,7 +412,7 @@ st.markdown(
 )
 
 sorted_standings = sorted(
-    total_standings.items(), key=lambda x: x[1], reverse=True
+    course_standings.items(), key=lambda x: x[1], reverse=True
 )
 styles = ["first-place", "second-place", "third-place"]
 badges = ["🥇", "🥈", "🥉"]
