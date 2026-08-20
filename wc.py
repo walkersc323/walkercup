@@ -203,19 +203,20 @@ if "scores" not in st.session_state:
 if "selected_hole" not in st.session_state:
     st.session_state.selected_hole = 1
 
-# --- TITLE ---
+# =========================================================
+# 1. TOP HEADER: TITLE & 3 SCORE BOXES
+# =========================================================
 st.markdown(
     "<h4 style='text-align: center; margin-top: -10px; margin-bottom: 8px;'>⛳ The Walker Cup 2026</h4>",
     unsafe_allow_html=True,
 )
 
-# --- TOP SCOREBOARD BANNER ---
 live_totals = get_total_standings()
 top_score_cols = st.columns(3)
 for i, (player, initial) in enumerate(INITIALS.items()):
     with top_score_cols[i]:
         card_html = f"""
-        <div style="background-color: #0f172a; border: 1px solid #334155; border-radius: 8px; padding: 6px 2px; text-align: center; margin-bottom: 12px;">
+        <div style="background-color: #0f172a; border: 1px solid #334155; border-radius: 8px; padding: 6px 2px; text-align: center; margin-bottom: 10px;">
             <div style="font-size: 13px; font-weight: 700; color: #94a3b8; letter-spacing: 1px;">{initial}</div>
             <div style="font-size: 28px; font-weight: 900; color: #ffffff; line-height: 1.1;">{live_totals[player]}</div>
         </div>
@@ -225,14 +226,58 @@ for i, (player, initial) in enumerate(INITIALS.items()):
 selected_course = st.selectbox("Select Course / Round", list(COURSES.keys()))
 stroke_diffs = get_strokes_off_lowest(selected_course)
 
+course_data = COURSES[selected_course]
+hole_num = st.session_state.selected_hole
+hole_info = course_data["holes"][hole_num - 1]
+pts_val = get_hole_point_value(hole_info["hcp"])
+
+# =========================================================
+# 2. HOLE INFORMATION & STROKE BADGES (TROY & ALLEN)
+# =========================================================
+hdr_html = f"""
+<div style="background-color: #1e293b; padding: 8px 12px; border-radius: 8px; margin-top: 5px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
+    <span style="color: #ffffff; font-size: 20px; font-weight: 800;">⛳ HOLE {hole_num}</span>
+    <span style="color: #94a3b8; font-size: 14px; font-weight: 600;">PAR <b>{hole_info['par']}</b> &nbsp;|&nbsp; <b>{pts_val} PTS</b></span>
+</div>
+"""
+st.markdown(hdr_html, unsafe_allow_html=True)
+
+# Strokes received boxes specifically for Troy & Allen
+troy_strokes = 1 if stroke_diffs["Troy"] >= hole_info["hcp"] else 0
+allen_strokes = 1 if stroke_diffs["Allen"] >= hole_info["hcp"] else 0
+
+troy_bg = "#dc2626" if troy_strokes > 0 else "#334155"
+allen_bg = "#dc2626" if allen_strokes > 0 else "#334155"
+
+troy_txt = f"+{troy_strokes} Stroke" if troy_strokes > 0 else "Scratch"
+allen_txt = f"+{allen_strokes} Stroke" if allen_strokes > 0 else "Scratch"
+
+badge_cols = st.columns(2)
+with badge_cols[0]:
+    st.markdown(
+        f"""
+        <div style="background-color: {troy_bg}; color: white; padding: 6px 4px; border-radius: 6px; text-align: center; font-size: 13px; margin-bottom: 12px;">
+            <b>Troy</b><br><span style="font-size: 14px; font-weight: 900;">{troy_txt}</span>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+with badge_cols[1]:
+    st.markdown(
+        f"""
+        <div style="background-color: {allen_bg}; color: white; padding: 6px 4px; border-radius: 6px; text-align: center; font-size: 13px; margin-bottom: 12px;">
+            <b>Allen</b><br><span style="font-size: 14px; font-weight: 900;">{allen_txt}</span>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+# =========================================================
+# 3. LOWER SECTION: TABS (HOLE SCORING & LEADERBOARD)
+# =========================================================
 tab1, tab2 = st.tabs(["📝 Hole Scoring", "🏆 Leaderboard"])
 
-# =========================================================
-# TAB 1: HOLE SCORING & MINI SCORECARD
-# =========================================================
 with tab1:
-    course_data = COURSES[selected_course]
-
     st.markdown(
         """
         <style>
@@ -279,35 +324,7 @@ with tab1:
             st.session_state.selected_hole = h_i
             st.rerun()
 
-    hole_num = st.session_state.selected_hole
-    hole_info = course_data["holes"][hole_num - 1]
-    pts_val = get_hole_point_value(hole_info["hcp"])
-
-    hdr_html = f"""
-    <div style="background-color: #1e293b; padding: 8px 12px; border-radius: 8px; margin-top: 10px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
-        <span style="color: #ffffff; font-size: 20px; font-weight: 800;">⛳ HOLE {hole_num}</span>
-        <span style="color: #94a3b8; font-size: 14px; font-weight: 600;">PAR <b>{hole_info['par']}</b> &nbsp;|&nbsp; <b>{pts_val} PTS</b></span>
-    </div>
-    """
-    st.markdown(hdr_html, unsafe_allow_html=True)
-
-    stroke_cols = st.columns(3)
-    for i, p in enumerate(PLAYERS.keys()):
-        strokes_on_hole = 1 if stroke_diffs[p] >= hole_info["hcp"] else 0
-        badge_color = "#10b981" if strokes_on_hole > 0 else "#475569"
-        badge_text = (
-            f"+{strokes_on_hole} Stroke" if strokes_on_hole > 0 else "Scratch"
-        )
-
-        with stroke_cols[i]:
-            bdg_html = f"""
-            <div style="background-color: {badge_color}; color: white; padding: 4px 2px; border-radius: 6px; text-align: center; font-size: 12px;">
-                <b>{p}</b><br><span style="font-size: 13px; font-weight: 800;">{badge_text}</span>
-            </div>
-            """
-            st.markdown(bdg_html, unsafe_allow_html=True)
-
-    st.markdown("<div style='margin-top: 15px;'></div>", unsafe_allow_html=True)
+    st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
     st.subheader("📝 Enter Gross Scores")
 
     voice_key = f"voice_{selected_course}_{hole_num}"
@@ -373,8 +390,6 @@ with tab1:
 
                 is_tie = len(winners) > 1
 
-                # Sole Winner = Green (#15803d, white text)
-                # Tie Winner = Yellow (#eab308, dark text)
                 if "Scott" in winners:
                     scott_style = (
                         "background-color: #eab308; color: #000000; font-weight: bold;"
@@ -443,7 +458,7 @@ with tab1:
     components.html(full_html, height=520, scrolling=True)
 
 # =========================================================
-# TAB 2: LEADERBOARD
+# LEADERBOARD TAB
 # =========================================================
 with tab2:
     st.subheader("🏆 Tournament Standings")
