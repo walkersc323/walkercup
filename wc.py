@@ -275,98 +275,105 @@ with badge_cols[1]:
     )
 
 # =========================================================
-# 3. TABS: HOLE SCORING & LEADERBOARD
+# 3. HOLE SELECTION & GROSS SCORE ENTRY (DIRECTLY BELOW STROKE BADGES)
 # =========================================================
-tab1, tab2 = st.tabs(["📝 Hole Scoring", "🏆 Leaderboard"])
+st.markdown(
+    """
+    <style>
+    div[data-testid="stHorizontalBlock"] {
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        gap: 2px !important;
+    }
+    div[data-testid="stHorizontalBlock"] > div {
+        min-width: 0 !important;
+        flex: 1 1 0 !important;
+    }
+    div[data-testid="stHorizontalBlock"] button {
+        padding: 4px 0px !important;
+        font-size: 13px !important;
+    }
+    </style>
+""",
+    unsafe_allow_html=True,
+)
+
+st.write("**Select Hole:**")
+
+cols_front = st.columns(9)
+for h_i in range(1, 10):
+    btn_type = (
+        "primary" if st.session_state.selected_hole == h_i else "secondary"
+    )
+    if cols_front[h_i - 1].button(
+        str(h_i), key=f"btn_{h_i}", type=btn_type, use_container_width=True
+    ):
+        st.session_state.selected_hole = h_i
+        st.rerun()
+
+cols_back = st.columns(9)
+for h_i in range(10, 19):
+    btn_type = (
+        "primary" if st.session_state.selected_hole == h_i else "secondary"
+    )
+    if cols_back[h_i - 10].button(
+        str(h_i), key=f"btn_{h_i}", type=btn_type, use_container_width=True
+    ):
+        st.session_state.selected_hole = h_i
+        st.rerun()
+
+st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
+st.subheader("📝 Enter Gross Scores")
+
+voice_key = f"voice_{selected_course}_{hole_num}"
+
+voice_input = st.text_input(
+    "🎙️ Dictate Scores (e.g. 'Scott 4 Troy 6 Allen 5')",
+    key=voice_key,
+)
+
+saved_scores = st.session_state.scores[selected_course].get(hole_num, {})
+current_scores = {p: saved_scores.get(p, hole_info["par"]) for p in PLAYERS}
+
+if voice_input:
+    parsed_results = parse_spoken_text(voice_input)
+    for p_name, val in parsed_results.items():
+        current_scores[p_name] = val
+        widget_key = f"{selected_course}_{hole_num}_{p_name}"
+        st.session_state[widget_key] = val
+
+cols = st.columns(3)
+user_inputs = {}
+for i, p in enumerate(PLAYERS.keys()):
+    w_key = f"{selected_course}_{hole_num}_{p}"
+    if w_key not in st.session_state:
+        st.session_state[w_key] = current_scores[p]
+
+    with cols[i]:
+        user_inputs[p] = st.number_input(
+            f"{p}",
+            min_value=1,
+            max_value=15,
+            key=w_key,
+        )
+
+if st.button("💾 Save Score for Hole", type="primary", use_container_width=True):
+    st.session_state.scores[selected_course][hole_num] = user_inputs
+    st.success(f"Scores saved for Hole {hole_num}!")
+    st.rerun()
+
+# =========================================================
+# 4. LOWER SECTION: TABS (HOLE SCORING SUMMARY & LEADERBOARD)
+# =========================================================
+st.markdown("<div style='margin-top: 15px;'></div>", unsafe_allow_html=True)
+tab1, tab2 = st.tabs(["📝 Hole Scoring Summary", "🏆 Leaderboard"])
 
 with tab1:
-    st.markdown(
-        """
-        <style>
-        div[data-testid="stHorizontalBlock"] {
-            display: flex !important;
-            flex-direction: row !important;
-            flex-wrap: nowrap !important;
-            gap: 2px !important;
-        }
-        div[data-testid="stHorizontalBlock"] > div {
-            min-width: 0 !important;
-            flex: 1 1 0 !important;
-        }
-        div[data-testid="stHorizontalBlock"] button {
-            padding: 4px 0px !important;
-            font-size: 13px !important;
-        }
-        </style>
-    """,
-        unsafe_allow_html=True,
+    st.write(
+        f"**Currently Scoring:** {selected_course} — **Hole {hole_num}**"
     )
-
-    st.write("**Select Hole:**")
-
-    cols_front = st.columns(9)
-    for h_i in range(1, 10):
-        btn_type = (
-            "primary" if st.session_state.selected_hole == h_i else "secondary"
-        )
-        if cols_front[h_i - 1].button(
-            str(h_i), key=f"btn_{h_i}", type=btn_type, use_container_width=True
-        ):
-            st.session_state.selected_hole = h_i
-            st.rerun()
-
-    cols_back = st.columns(9)
-    for h_i in range(10, 19):
-        btn_type = (
-            "primary" if st.session_state.selected_hole == h_i else "secondary"
-        )
-        if cols_back[h_i - 10].button(
-            str(h_i), key=f"btn_{h_i}", type=btn_type, use_container_width=True
-        ):
-            st.session_state.selected_hole = h_i
-            st.rerun()
-
-    st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
-    st.subheader("📝 Enter Gross Scores")
-
-    voice_key = f"voice_{selected_course}_{hole_num}"
-
-    voice_input = st.text_input(
-        "🎙️ Dictate Scores (e.g. 'Scott 4 Troy 6 Allen 5')",
-        key=voice_key,
-    )
-
-    saved_scores = st.session_state.scores[selected_course].get(hole_num, {})
-    current_scores = {
-        p: saved_scores.get(p, hole_info["par"]) for p in PLAYERS
-    }
-
-    if voice_input:
-        parsed_results = parse_spoken_text(voice_input)
-        for p_name, val in parsed_results.items():
-            current_scores[p_name] = val
-            widget_key = f"{selected_course}_{hole_num}_{p_name}"
-            st.session_state[widget_key] = val
-
-    cols = st.columns(3)
-    user_inputs = {}
-    for i, p in enumerate(PLAYERS.keys()):
-        w_key = f"{selected_course}_{hole_num}_{p}"
-        if w_key not in st.session_state:
-            st.session_state[w_key] = current_scores[p]
-
-        with cols[i]:
-            user_inputs[p] = st.number_input(
-                f"{p}",
-                min_value=1,
-                max_value=15,
-                key=w_key,
-            )
-
-    if st.button("💾 Save Score for Hole", type="primary", use_container_width=True):
-        st.session_state.scores[selected_course][hole_num] = user_inputs
-        st.success(f"Scores saved for Hole {hole_num}!")
-        st.rerun()
+    st.write(f"* Par: **{hole_info['par']}** | Points: **{pts_val} PTS**")
 
 with tab2:
     st.subheader("🏆 Tournament Standings")
@@ -436,7 +443,7 @@ with tab2:
         st.write("---")
 
 # =========================================================
-# 4. MINI SCORECARD (POSITIONED BELOW TABS)
+# 5. MINI SCORECARD
 # =========================================================
 st.divider()
 st.subheader("📋 Mini Scorecard")
@@ -530,7 +537,7 @@ full_html = f"""
 components.html(full_html, height=520, scrolling=True)
 
 # =========================================================
-# 5. COURSE SELECTOR (RELOCATED TO BOTTOM)
+# 6. COURSE SELECTOR (BOTTOM)
 # =========================================================
 st.divider()
 selected_course_input = st.selectbox(
