@@ -275,7 +275,7 @@ with badge_cols[1]:
     )
 
 # =========================================================
-# 3. HOLE SELECTION & GROSS SCORE ENTRY (DIRECTLY BELOW STROKE BADGES)
+# 3. HOLE SELECTION & GROSS SCORE ENTRY
 # =========================================================
 st.markdown(
     """
@@ -358,89 +358,86 @@ for i, p in enumerate(PLAYERS.keys()):
             key=w_key,
         )
 
+# --- AUTO-ADVANCE HOLE ON SAVE ---
 if st.button("💾 Save Score for Hole", type="primary", use_container_width=True):
     st.session_state.scores[selected_course][hole_num] = user_inputs
     st.success(f"Scores saved for Hole {hole_num}!")
+
+    # Auto-advance to the next hole (up to Hole 18)
+    if st.session_state.selected_hole < 18:
+        st.session_state.selected_hole += 1
+
     st.rerun()
 
 # =========================================================
-# 4. LOWER SECTION: TABS (HOLE SCORING SUMMARY & LEADERBOARD)
+# 4. LOWER SECTION: LEADERBOARD & ROUND BREAKDOWN TAB
 # =========================================================
 st.markdown("<div style='margin-top: 15px;'></div>", unsafe_allow_html=True)
-tab1, tab2 = st.tabs(["📝 Hole Scoring Summary", "🏆 Leaderboard"])
+st.subheader("🏆 Tournament Standings")
 
-with tab1:
-    st.write(
-        f"**Currently Scoring:** {selected_course} — **Hole {hole_num}**"
-    )
-    st.write(f"* Par: **{hole_info['par']}** | Points: **{pts_val} PTS**")
+total_standings = get_total_standings()
 
-with tab2:
-    st.subheader("🏆 Tournament Standings")
+st.markdown(
+    """
+    <style>
+    .leaderboard-card {
+        padding: 12px 18px;
+        border-radius: 10px;
+        margin-bottom: 10px;
+        font-size: 18px;
+        font-weight: bold;
+        display: flex;
+        justify-content: space-between;
+    }
+    .first-place { background-color: #ffd700; color: #000; }
+    .second-place { background-color: #c0c0c0; color: #000; }
+    .third-place { background-color: #cd7f32; color: #fff; }
+    </style>
+""",
+    unsafe_allow_html=True,
+)
 
-    total_standings = get_total_standings()
+sorted_standings = sorted(
+    total_standings.items(), key=lambda x: x[1], reverse=True
+)
+styles = ["first-place", "second-place", "third-place"]
+badges = ["🥇", "🥈", "🥉"]
 
+for rank, (player, score) in enumerate(sorted_standings):
+    badge = badges[rank]
+    style = styles[rank]
     st.markdown(
-        """
-        <style>
-        .leaderboard-card {
-            padding: 12px 18px;
-            border-radius: 10px;
-            margin-bottom: 10px;
-            font-size: 18px;
-            font-weight: bold;
-            display: flex;
-            justify-content: space-between;
-        }
-        .first-place { background-color: #ffd700; color: #000; }
-        .second-place { background-color: #c0c0c0; color: #000; }
-        .third-place { background-color: #cd7f32; color: #fff; }
-        </style>
-    """,
+        f"""
+        <div class="leaderboard-card {style}">
+            <span>{badge} #{rank+1} {player}</span>
+            <span>{score} PTS</span>
+        </div>
+        """,
         unsafe_allow_html=True,
     )
 
-    sorted_standings = sorted(
-        total_standings.items(), key=lambda x: x[1], reverse=True
-    )
-    styles = ["first-place", "second-place", "third-place"]
-    badges = ["🥇", "🥈", "🥉"]
+st.divider()
+st.subheader("📊 Round-by-Round Breakdown")
 
-    for rank, (player, score) in enumerate(sorted_standings):
-        badge = badges[rank]
-        style = styles[rank]
-        st.markdown(
-            f"""
-            <div class="leaderboard-card {style}">
-                <span>{badge} #{rank+1} {player}</span>
-                <span>{score} PTS</span>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
+for c_name, c_info in COURSES.items():
+    st.markdown(f"**{c_name}**")
+    s_diffs = get_strokes_off_lowest(c_name)
+    c_pts = {p: 0 for p in PLAYERS}
 
-    st.divider()
-    st.subheader("📊 Round-by-Round Breakdown")
+    for h_num, gross_dict in st.session_state.scores[c_name].items():
+        if len(gross_dict) == 3:
+            h_info = c_info["holes"][h_num - 1]
+            _, pts, _ = calculate_hole_points(
+                gross_dict, h_info["hcp"], s_diffs
+            )
+            for p in PLAYERS:
+                c_pts[p] += pts[p]
 
-    for c_name, c_info in COURSES.items():
-        st.markdown(f"**{c_name}**")
-        s_diffs = get_strokes_off_lowest(c_name)
-        c_pts = {p: 0 for p in PLAYERS}
-
-        for h_num, gross_dict in st.session_state.scores[c_name].items():
-            if len(gross_dict) == 3:
-                h_info = c_info["holes"][h_num - 1]
-                _, pts, _ = calculate_hole_points(
-                    gross_dict, h_info["hcp"], s_diffs
-                )
-                for p in PLAYERS:
-                    c_pts[p] += pts[p]
-
-        m_cols = st.columns(3)
-        for i, p in enumerate(PLAYERS.keys()):
-            with m_cols[i]:
-                st.metric(label=p, value=f"{c_pts[p]} pts")
-        st.write("---")
+    m_cols = st.columns(3)
+    for i, p in enumerate(PLAYERS.keys()):
+        with m_cols[i]:
+            st.metric(label=p, value=f"{c_pts[p]} pts")
+    st.write("---")
 
 # =========================================================
 # 5. MINI SCORECARD
