@@ -363,14 +363,13 @@ if st.button("💾 Save Score for Hole", type="primary", use_container_width=Tru
     st.session_state.scores[selected_course][hole_num] = user_inputs
     st.success(f"Scores saved for Hole {hole_num}!")
 
-    # Auto-advance to the next hole (up to Hole 18)
     if st.session_state.selected_hole < 18:
         st.session_state.selected_hole += 1
 
     st.rerun()
 
 # =========================================================
-# 4. LOWER SECTION: LEADERBOARD & ROUND BREAKDOWN TAB
+# 4. LEADERBOARD STANDINGS
 # =========================================================
 st.markdown("<div style='margin-top: 15px;'></div>", unsafe_allow_html=True)
 st.subheader("🏆 Tournament Standings")
@@ -415,29 +414,6 @@ for rank, (player, score) in enumerate(sorted_standings):
         """,
         unsafe_allow_html=True,
     )
-
-st.divider()
-st.subheader("📊 Round-by-Round Breakdown")
-
-for c_name, c_info in COURSES.items():
-    st.markdown(f"**{c_name}**")
-    s_diffs = get_strokes_off_lowest(c_name)
-    c_pts = {p: 0 for p in PLAYERS}
-
-    for h_num, gross_dict in st.session_state.scores[c_name].items():
-        if len(gross_dict) == 3:
-            h_info = c_info["holes"][h_num - 1]
-            _, pts, _ = calculate_hole_points(
-                gross_dict, h_info["hcp"], s_diffs
-            )
-            for p in PLAYERS:
-                c_pts[p] += pts[p]
-
-    m_cols = st.columns(3)
-    for i, p in enumerate(PLAYERS.keys()):
-        with m_cols[i]:
-            st.metric(label=p, value=f"{c_pts[p]} pts")
-    st.write("---")
 
 # =========================================================
 # 5. MINI SCORECARD
