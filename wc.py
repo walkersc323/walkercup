@@ -4,29 +4,29 @@ import json
 import os
 import io
 
-st.set_page_config(page_title="Walker Cup App", layout="centered")
+st.set_page_config(page_title="Walker Cup Leaderboard", layout="centered")
 
 SAVE_FILE = "wc_scores_backup.json"
 
-# Page Title & Subtitle
-st.markdown("<h4 style='margin-bottom:0px;'>⛳ Walker Cup Tournament</h4>", unsafe_allow_html=True)
-st.caption("3-Player Extreme Points (XP2K4) Format")
+# Page Title
+st.markdown("<h3 style='margin-bottom:0px;'>🏆 Walker Cup Leaderboard</h3>", unsafe_allow_html=True)
+st.caption("3-Player Tournament Scoring • Persistent Local Backup")
 
 # --- INITIALIZE PLAYERS & HANDICAPS IN SESSION STATE ---
 if "p1_name" not in st.session_state:
-    st.session_state.p1_name = "Player 1"
+    st.session_state.p1_name = "SCW"
 if "p1_hcp" not in st.session_state:
     st.session_state.p1_hcp = 0
 
 if "p2_name" not in st.session_state:
-    st.session_state.p2_name = "Player 2"
+    st.session_state.p2_name = "ATN"
 if "p2_hcp" not in st.session_state:
-    st.session_state.p2_hcp = 0
+    st.session_state.p2_hcp = 12
 
 if "p3_name" not in st.session_state:
-    st.session_state.p3_name = "Player 3"
+    st.session_state.p3_name = "Troy"
 if "p3_hcp" not in st.session_state:
-    st.session_state.p3_hcp = 0
+    st.session_state.p3_hcp = 18
 
 p1 = st.session_state.p1_name
 p1_hcp = st.session_state.p1_hcp
@@ -35,15 +35,36 @@ p2_hcp = st.session_state.p2_hcp
 p3 = st.session_state.p3_name
 p3_hcp = st.session_state.p3_hcp
 
-# --- DEFAULT 18-HOLE COURSE STRUCTURE ---
-DEFAULT_COURSE_DATA = {
-    "Hole": list(range(1, 19)),
-    "Yards": [400] * 18,
-    "Par": [4] * 18,
-    "Hcp": list(range(1, 19))
+# --- COURSE PRESETS ---
+COURSES = {
+    "Pilgrim's Oak": {
+        "Yards": [378, 327, 367, 108, 329, 470, 354, 138, 425, 350, 359, 101, 329, 505, 360, 352, 111, 465],
+        "Par": [4, 4, 4, 3, 4, 5, 4, 3, 5, 4, 4, 3, 4, 5, 4, 4, 3, 5],
+        "Hcp": [11, 5, 9, 17, 15, 13, 3, 7, 1, 16, 4, 6, 8, 12, 10, 18, 14, 2]
+    },
+    "Custom / Generic": {
+        "Yards": [400] * 18,
+        "Par": [4] * 18,
+        "Hcp": list(range(1, 19))
+    }
 }
 
+selected_course = st.selectbox("Select Course", list(COURSES.keys()))
+course_info = COURSES[selected_course]
+
 # --- PERSISTENCE FUNCTIONS ---
+def get_default_df():
+    df_init = pd.DataFrame({
+        "Hole": list(range(1, 19)),
+        "Yards": course_info["Yards"],
+        "Par": course_info["Par"],
+        "Hcp": course_info["Hcp"],
+        p1: 0,
+        p2: 0,
+        p3: 0
+    })
+    return df_init
+
 def load_saved_data():
     if os.path.exists(SAVE_FILE):
         try:
@@ -52,11 +73,7 @@ def load_saved_data():
                 return pd.DataFrame(saved_dict)
         except Exception:
             pass
-    df_init = pd.DataFrame(DEFAULT_COURSE_DATA)
-    df_init[p1] = 0
-    df_init[p2] = 0
-    df_init[p3] = 0
-    return df_init
+    return get_default_df()
 
 def save_data(df_to_save):
     with open(SAVE_FILE, "w") as f:
@@ -67,11 +84,11 @@ if "score_data" not in st.session_state:
 
 df = st.session_state.score_data
 
-# Ensure player columns stay synced if names change
+# Keep columns synced
 if p1 not in df.columns or p2 not in df.columns or p3 not in df.columns:
     df.columns = ["Hole", "Yards", "Par", "Hcp", p1, p2, p3]
 
-# --- CALCULATE 3-PLAYER WALKER CUP EXTREME POINTS ---
+# --- CALCULATE WALKER CUP POINTS ---
 p1_pts = 0
 p2_pts = 0
 p3_pts = 0
@@ -82,7 +99,6 @@ for _, row in df.iterrows():
     g2 = int(row[p2])
     g3 = int(row[p3])
 
-    # Calculate net strokes per hole
     s1 = 1 if h_hcp <= p1_hcp else 0
     s2 = 1 if h_hcp <= p2_hcp else 0
     s3 = 1 if h_hcp <= p3_hcp else 0
@@ -91,22 +107,14 @@ for _, row in df.iterrows():
     net2 = g2 - s2 if g2 > 0 else 0
     net3 = g3 - s3 if g3 > 0 else 0
 
-    # Determine hole base value
-    if h_hcp <= 6:
-        win_val = 9
-    elif h_hcp <= 12:
-        win_val = 6
-    else:
-        win_val = 3
+    win_val = 9 if h_hcp <= 6 else (6 if h_hcp <= 12 else 3)
 
-    # Award points when all 3 players have entered scores
     if g1 > 0 and g2 > 0 and g3 > 0:
         net_scores = {p1: net1, p2: net2, p3: net3}
         min_score = min(net_scores.values())
         winners = [player for player, score in net_scores.items() if score == min_score]
 
         if len(winners) == 1:
-            # Lone winner gets full hole value
             if winners[0] == p1:
                 p1_pts += win_val
             elif winners[0] == p2:
@@ -114,7 +122,6 @@ for _, row in df.iterrows():
             elif winners[0] == p3:
                 p3_pts += win_val
         elif len(winners) == 2:
-            # 2-way tie payouts: 3, 2, or 1 point each
             tie_payout = win_val // 3
             if p1 in winners:
                 p1_pts += tie_payout
@@ -123,13 +130,12 @@ for _, row in df.iterrows():
             if p3 in winners:
                 p3_pts += tie_payout
         elif len(winners) == 3:
-            # 3-way tie payouts: 3, 2, or 1 point each
             tie_payout = win_val // 3
             p1_pts += tie_payout
             p2_pts += tie_payout
             p3_pts += tie_payout
 
-# --- POINTS LEADERBOARD BOXES WITH LEADER HIGHLIGHT ---
+# --- POINTS LEADERBOARD BOXES ---
 max_pts = max(p1_pts, p2_pts, p3_pts)
 
 style_default = "background-color: transparent; color: #FFFFFF; border: 1.5px solid #FFFFFF;"
@@ -142,15 +148,15 @@ p3_style = style_leader if (p3_pts == max_pts and p3_pts > 0) else style_default
 st.markdown(
     f"""
     <div style="display: flex; justify-content: center; gap: 10px; margin-top: 5px; margin-bottom: 5px;">
-        <div style="width: 90px; border-radius: 6px; padding: 6px 0px; text-align: center; {p1_style}">
+        <div style="width: 95px; border-radius: 6px; padding: 6px 0px; text-align: center; {p1_style}">
             <span style="font-size: 12px; font-weight: bold;">{p1}</span><br>
             <span style="font-size: 20px; font-weight: 800; line-height: 1.1;">{int(p1_pts)} PTS</span>
         </div>
-        <div style="width: 90px; border-radius: 6px; padding: 6px 0px; text-align: center; {p2_style}">
+        <div style="width: 95px; border-radius: 6px; padding: 6px 0px; text-align: center; {p2_style}">
             <span style="font-size: 12px; font-weight: bold;">{p2}</span><br>
             <span style="font-size: 20px; font-weight: 800; line-height: 1.1;">{int(p2_pts)} PTS</span>
         </div>
-        <div style="width: 90px; border-radius: 6px; padding: 6px 0px; text-align: center; {p3_style}">
+        <div style="width: 95px; border-radius: 6px; padding: 6px 0px; text-align: center; {p3_style}">
             <span style="font-size: 12px; font-weight: bold;">{p3}</span><br>
             <span style="font-size: 20px; font-weight: 800; line-height: 1.1;">{int(p3_pts)} PTS</span>
         </div>
@@ -183,7 +189,7 @@ curr_p1 = int(df.loc[df["Hole"] == selected_hole, p1].values[0])
 curr_p2 = int(df.loc[df["Hole"] == selected_hole, p2].values[0])
 curr_p3 = int(df.loc[df["Hole"] == selected_hole, p3].values[0])
 
-# --- SCORE ENTRY FORM WITH SUBMIT BUTTON ---
+# --- SCORE ENTRY FORM WITH PERSISTENT SUBMIT BUTTON ---
 with st.form(key=f"wc_hole_form_{selected_hole}"):
     s_col1, s_col2, s_col3 = st.columns(3)
     with s_col1:
@@ -212,11 +218,11 @@ all_18_done = len(completed_holes) == 18
 
 if all_18_done:
     st.balloons()
-    st.success("🎉 Walker Cup Match Completed!")
+    st.success("🎉 Walker Cup Round Completed!")
     
     buffer = io.BytesIO()
     with pd.ExcelWriter(buffer, engine='openpyxl') as writer:
-        df.to_excel(writer, index=False, sheet_name="Walker Cup Match")
+        df.to_excel(writer, index=False, sheet_name="Walker Cup Scorecard")
     
     excel_data = buffer.getvalue()
     
@@ -360,11 +366,7 @@ with b_col1:
     if st.button("🔄 Reset Round Scores", use_container_width=True):
         if os.path.exists(SAVE_FILE):
             os.remove(SAVE_FILE)
-        df_reset = pd.DataFrame(DEFAULT_COURSE_DATA)
-        df_reset[p1] = 0
-        df_reset[p2] = 0
-        df_reset[p3] = 0
-        st.session_state.score_data = df_reset
+        st.session_state.score_data = get_default_df()
         st.rerun()
 
 with st.expander("⚙️ Player Setup & Handicaps", expanded=False):
