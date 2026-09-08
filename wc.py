@@ -1,3 +1,6 @@
+import io
+import json
+import os
 import re
 import pandas as pd
 import streamlit as st
@@ -7,6 +10,8 @@ import streamlit.components.v1 as components
 st.set_page_config(
     page_title="The Walker Cup", page_icon="⛳", layout="centered"
 )
+
+SAVE_FILE = "wc_scores_backup.json"
 
 # --- PLAYER DATA & INITIALS ---
 PLAYERS = {"Scott": 17.3, "Troy": 24.2, "Allen": 27.5}
@@ -98,11 +103,27 @@ COURSES = {
     },
 }
 
+# --- PERSISTENCE HELPERS ---
+def load_saved_scores():
+    if os.path.exists(SAVE_FILE):
+        try:
+            with open(SAVE_FILE, "r") as f:
+                raw_data = json.load(f)
+                return {
+                    course: {int(h): scores for h, scores in h_dict.items()}
+                    for course, h_dict in raw_data.items()
+                }
+        except Exception:
+            pass
+    return {c: {} for c in COURSES}
+
+def save_scores_to_disk():
+    with open(SAVE_FILE, "w") as f:
+        json.dump(st.session_state.scores, f)
 
 # --- HELPER CALCULATIONS ---
 def get_course_handicap(index, rating, slope, par):
     return int(round(index * (slope / 113) + (rating - par)))
-
 
 def get_strokes_off_lowest(course_name):
     c = COURSES[course_name]
@@ -113,7 +134,6 @@ def get_strokes_off_lowest(course_name):
     min_ch = min(ch.values())
     return {p: ch[p] - min_ch for p in PLAYERS}
 
-
 def get_hole_point_value(hcp_rank):
     if hcp_rank <= 6:
         return 9
@@ -121,7 +141,6 @@ def get_hole_point_value(hcp_rank):
         return 6
     else:
         return 3
-
 
 def calculate_hole_points(gross_scores, hcp_rank, stroke_diffs):
     pts_available = get_hole_point_value(hcp_rank)
@@ -145,7 +164,6 @@ def calculate_hole_points(gross_scores, hcp_rank, stroke_diffs):
 
     return net_scores, pts_won, winners
 
-
 def get_total_standings():
     totals = {p: 0 for p in PLAYERS}
     for c_name, c_info in COURSES.items():
@@ -159,7 +177,6 @@ def get_total_standings():
                 for p in PLAYERS:
                     totals[p] += pts[p]
     return totals
-
 
 def get_course_standings(course_name):
     totals = {p: 0 for p in PLAYERS}
@@ -175,15 +192,12 @@ def get_course_standings(course_name):
                 totals[p] += pts[p]
     return totals
 
-
 def parse_spoken_text(text):
     text_clean = text.lower().strip()
-
     for word, num in WORD_TO_NUM.items():
         text_clean = re.sub(rf"\b{word}\b", str(num), text_clean)
 
     scores_found = {}
-
     player_aliases = {
         "Scott": ["scott", "scw"],
         "Troy": ["troy", "tac"],
@@ -210,10 +224,9 @@ def parse_spoken_text(text):
 
     return scores_found
 
-
-# --- INITIALIZE SESSION STATE ---
+# --- INITIALIZE SESSION STATE WITH FILE BACKUP ---
 if "scores" not in st.session_state:
-    st.session_state.scores = {c: {} for c in COURSES}
+    st.session_state.scores = load_saved_scores()
 
 if "selected_hole" not in st.session_state:
     st.session_state.selected_hole = 1
@@ -250,7 +263,7 @@ for i, (player, initial) in enumerate(INITIALS.items()):
         st.markdown(card_html, unsafe_allow_html=True)
 
 # =========================================================
-# 2. HOLE INFORMATION (DARK GREEN BANNER WITH HCP) & STROKE BADGES
+# 2. HOLE INFORMATION & STROKE BADGES
 # =========================================================
 hdr_html = f"""
 <div style="background-color: #15803d; padding: 8px 12px; border-radius: 8px; margin-top: 5px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
@@ -373,9 +386,10 @@ for i, p in enumerate(PLAYERS.keys()):
             key=w_key,
         )
 
-# --- AUTO-ADVANCE HOLE ON SAVE ---
+# --- SAVE SCORE & PERSIST TO FILE ---
 if st.button("💾 Save Score for Hole", type="primary", use_container_width=True):
     st.session_state.scores[selected_course][hole_num] = user_inputs
+    save_scores_to_disk()
     st.success(f"Scores saved for Hole {hole_num}!")
 
     if st.session_state.selected_hole < 18:
@@ -525,16 +539,26 @@ full_html = f"""
 components.html(full_html, height=520, scrolling=True)
 
 # =========================================================
-# 6. COURSE SELECTOR (BOTTOM)
+# 6. COURSE SELECTOR & RESET BUTTON (BOTTOM)
 # =========================================================
 st.divider()
-selected_course_input = st.selectbox(
-    "⚙️ Select Course / Round",
-    list(COURSES.keys()),
-    index=list(COURSES.keys()).index(st.session_state.selected_course),
-    key="course_picker_bottom",
-)
 
-if selected_course_input != st.session_state.selected_course:
-    st.session_state.selected_course = selected_course_input
-    st.rerun()
+b_col1, b_col2 = st.columns(2)
+with b_col1:
+    selected_course_input = st.selectbox(
+        "⚙️ Select Course / Round",
+        list(COURSES.keys()),
+        index=list(COURSES.keys()).index(st.session_state.selected_course),
+        key="course_picker_bottom",
+    )
+    if selected_course_input != st.session_state.selected_course:
+        st.session_state.selected_course = selected_course_input
+        st.rerun()
+
+with b_col2:
+    st.write("&nbsp;")
+    if st.button("🔄 Reset Tournament Scores", use_container_width=True):
+        if os.path.exists(SAVE_FILE):
+            os.remove(SAVE_FILE)
+        st.session_state.scores = {c: {} for c in COURSES}
+        st.rerun()
