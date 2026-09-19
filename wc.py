@@ -23,7 +23,7 @@ WORD_TO_NUM = {
     "eleven": 11, "twelve": 12, "thirteen": 13, "fourteen": 14, "fifteen": 15
 }
 
-# --- COURSE DEFINITIONS WITH DATA-BACKED HISTORICAL HOLE INSIGHTS ---
+# --- COURSE DEFINITIONS WITH OFFICIAL BAYWOOD GREENS SCORECARD & INSIGHTS ---
 COURSES = {
     "Frog Hollow (White Tees)": {
         "rating": 70.0,
@@ -55,24 +55,24 @@ COURSES = {
         "slope": 134,
         "par": 72,
         "holes": [
-            {"num": 1, "par": 4, "hcp": 9, "yds": 375, "tips": {"Scott": "Career avg 4.60—solid opener, favor left-center.", "Troy": "Career avg 4.20—great hole for you; be aggressive.", "Allen": "Career avg 6.00—you get a stroke, play for net par."}},
-            {"num": 2, "par": 4, "hcp": 5, "yds": 390, "tips": {"Scott": "Career avg 5.20—steady par/bogey history.", "Troy": "Career avg 4.60—stroke hole advantage, attack flag.", "Allen": "Career avg 6.75—stroke hole, play safe layup."}},
-            {"num": 3, "par": 3, "hcp": 15, "yds": 165, "tips": {"Scott": "Career avg 5.80—watch the front hazard, club up.", "Troy": "Career avg 5.00—solid par candidate, aim middle.", "Allen": "Career avg 5.20—smooth iron, high par conversion."}},
-            {"num": 4, "par": 5, "hcp": 1, "yds": 535, "tips": {"Scott": "Career avg 7.20—HCP #1, water hazard is real threat.", "Troy": "Career avg 5.40—stroke hole, you play this very well.", "Allen": "Career avg 6.50—stroke hole, three safe layups."}},
-            {"num": 5, "par": 4, "hcp": 11, "yds": 360, "tips": {"Scott": "Career avg 8.00—historically a very tough hole, be careful!", "Troy": "Career avg 8.60—trouble left & right; play conservative.", "Allen": "Career avg 6.60—you score best here among the group!"}},
-            {"num": 6, "par": 3, "hcp": 17, "yds": 150, "tips": {"Scott": "Career avg 5.60—guard against short right.", "Troy": "Career avg 6.20—smooth swing into green center.", "Allen": "Career avg 5.20—great chance for net birdie."}},
-            {"num": 7, "par": 4, "hcp": 7, "yds": 380, "tips": {"Scott": "Career avg 6.25—favor left side of fairway.", "Troy": "Career avg 7.00—stroke hole, use your handicap pad.", "Allen": "Career avg 7.40—stroke hole, play for smart bogey."}},
-            {"num": 8, "par": 5, "hcp": 13, "yds": 505, "tips": {"Scott": "Career avg 3.25—YOUR BEST HOLE AT BAYWOOD! Go for it!", "Troy": "Career avg 3.50—great historical scoring hole for you.", "Allen": "Career avg 4.20—high point yield hole for you."}},
-            {"num": 9, "par": 4, "hcp": 3, "yds": 410, "tips": {"Scott": "Career avg 4.75—strong front finish history.", "Troy": "Career avg 4.75—stroke hole, play center green.", "Allen": "Career avg 6.40—stroke hole, take extra club."}},
-            {"num": 10, "par": 4, "hcp": 10, "yds": 370, "tips": {"Scott": "Career avg 5.75—good start to back nine.", "Troy": "Career avg 6.50—favor right fairway off tee.", "Allen": "Career avg 7.00—stroke hole, keep drive in play."}},
-            {"num": 11, "par": 3, "hcp": 18, "yds": 140, "tips": {"Scott": "Career avg 3.50—high par rate, attack flag directly.", "Troy": "Career avg 4.75—aim center green, avoid left trap.", "Allen": "Career avg 6.40—focus on smooth iron tempo."}},
-            {"num": 12, "par": 5, "hcp": 2, "yds": 540, "tips": {"Scott": "Career avg 5.00—HCP #2 monster, play 3 controlled shots.", "Troy": "Career avg 5.00—stroke hole, great scoring history.", "Allen": "Career avg 7.00—stroke hole, stay away from water."}},
-            {"num": 13, "par": 4, "hcp": 8, "yds": 385, "tips": {"Scott": "Career avg 6.75—tricky green slopes, aim below cup.", "Troy": "Career avg 6.75—stroke hole, favor left side.", "Allen": "Career avg 8.20—historically tough, play safe bogey."}},
-            {"num": 14, "par": 3, "hcp": 16, "yds": 155, "tips": {"Scott": "Career avg 6.50—water left, favor right fringe.", "Troy": "Career avg 5.25—you score very well here; attack.", "Allen": "Career avg 7.60—stroke hole, play center green."}},
-            {"num": 15, "par": 4, "hcp": 4, "yds": 400, "tips": {"Scott": "Career avg 4.25—great par history on this stretch.", "Troy": "Career avg 4.25—stroke hole, high point yield.", "Allen": "Career avg 3.50—YOUR BEST PAR 4 AT BAYWOOD!"}},
-            {"num": 16, "par": 4, "hcp": 12, "yds": 365, "tips": {"Scott": "Career avg 6.25—wedge distance approach, play smart.", "Troy": "Career avg 6.50—stroke hole, good scoring spot.", "Allen": "Career avg 7.25—stroke hole, keep drive in fairway."}},
-            {"num": 17, "par": 5, "hcp": 6, "yds": 520, "tips": {"Scott": "Career avg 6.00—penultimate hole, watch right hazard.", "Troy": "Career avg 4.75—stroke hole, aggressive birdie path.", "Allen": "Career avg 6.75—stroke hole, play three clean shots."}},
-            {"num": 18, "par": 4, "hcp": 14, "yds": 355, "tips": {"Scott": "Career avg 5.75—solid finish history, aim at clubhouse.", "Troy": "Career avg 6.00—finish strong, great drive target.", "Allen": "Career avg 6.25—solid closing hole performance."}},
+            {"num": 1, "par": 4, "hcp": 15, "yds": 349, "tips": {"Scott": "Career avg 4.60—solid opener, favor left-center.", "Troy": "Career avg 4.20—great hole for you; be aggressive.", "Allen": "Career avg 6.00—stroke hole, play for net par."}},
+            {"num": 2, "par": 4, "hcp": 9, "yds": 318, "tips": {"Scott": "Career avg 5.20—steady par/bogey history.", "Troy": "Career avg 4.60—stroke hole advantage, attack flag.", "Allen": "Career avg 6.75—stroke hole, play safe layup."}},
+            {"num": 3, "par": 4, "hcp": 5, "yds": 395, "tips": {"Scott": "Career avg 5.80—9-point tier, guard against right hazard.", "Troy": "Career avg 5.00—stroke hole, solid par candidate.", "Allen": "Career avg 5.20—stroke hole, smooth tempo."}},
+            {"num": 4, "par": 4, "hcp": 3, "yds": 422, "tips": {"Scott": "Career avg 7.20—9-point tier, long approach over traps.", "Troy": "Career avg 5.40—stroke hole, you play this very well.", "Allen": "Career avg 6.50—stroke hole, play center green."}},
+            {"num": 5, "par": 5, "hcp": 1, "yds": 515, "tips": {"Scott": "Career avg 8.00—HCP #1 monster, play conservative layups.", "Troy": "Career avg 8.60—stroke hole, avoid water right at all costs.", "Allen": "Career avg 6.60—stroke hole, you score best here!"}},
+            {"num": 6, "par": 3, "hcp": 13, "yds": 202, "tips": {"Scott": "Career avg 5.60—long par 3, take extra club.", "Troy": "Career avg 6.20—smooth swing into green center.", "Allen": "Career avg 5.20—great chance for net par."}},
+            {"num": 7, "par": 5, "hcp": 7, "yds": 480, "tips": {"Scott": "Career avg 6.25—favor left side of fairway.", "Troy": "Career avg 7.00—stroke hole, use your handicap pad.", "Allen": "Career avg 7.40—stroke hole, play for smart bogey."}},
+            {"num": 8, "par": 3, "hcp": 17, "yds": 131, "tips": {"Scott": "Career avg 3.25—YOUR BEST HOLE AT BAYWOOD! Attack flag.", "Troy": "Career avg 3.50—great historical scoring hole for you.", "Allen": "Career avg 4.20—high point yield hole for you."}},
+            {"num": 9, "par": 4, "hcp": 11, "yds": 320, "tips": {"Scott": "Career avg 4.75—6-point tier, strong front finish history.", "Troy": "Career avg 4.75—stroke hole, play center green.", "Allen": "Career avg 6.40—stroke hole, take clean contact."}},
+            {"num": 10, "par": 4, "hcp": 12, "yds": 360, "tips": {"Scott": "Career avg 5.75—good start to back nine.", "Troy": "Career avg 6.50—stroke hole, favor right fairway.", "Allen": "Career avg 7.00—stroke hole, keep drive in play."}},
+            {"num": 11, "par": 3, "hcp": 16, "yds": 139, "tips": {"Scott": "Career avg 3.50—high par rate, attack flag directly.", "Troy": "Career avg 4.75—aim center green, avoid left trap.", "Allen": "Career avg 6.40—focus on smooth iron tempo."}},
+            {"num": 12, "par": 4, "hcp": 18, "yds": 288, "tips": {"Scott": "Career avg 5.00—short par 4, wedge in hand.", "Troy": "Career avg 5.00—great scoring opportunity.", "Allen": "Career avg 7.00—easiest HCP rank, attack pin."}},
+            {"num": 13, "par": 5, "hcp": 8, "yds": 477, "tips": {"Scott": "Career avg 6.75—tricky green slopes, aim below cup.", "Troy": "Career avg 6.75—stroke hole, favor left side.", "Allen": "Career avg 8.20—stroke hole, play safe bogey."}},
+            {"num": 14, "par": 4, "hcp": 2, "yds": 385, "tips": {"Scott": "Career avg 6.50—HCP #2, 9-point tier, play for front green.", "Troy": "Career avg 5.25—stroke hole, high point yield.", "Allen": "Career avg 7.60—stroke hole, play center green."}},
+            {"num": 15, "par": 3, "hcp": 14, "yds": 145, "tips": {"Scott": "Career avg 4.25—water left, favor right fringe.", "Troy": "Career avg 4.25—you score very well here; attack.", "Allen": "Career avg 3.50—YOUR BEST PAR 3 AT BAYWOOD!"}},
+            {"num": 16, "par": 5, "hcp": 4, "yds": 452, "tips": {"Scott": "Career avg 6.25—9-point tier, reach in 3 clean shots.", "Troy": "Career avg 6.50—stroke hole, good scoring spot.", "Allen": "Career avg 7.25—stroke hole, keep drive in fairway."}},
+            {"num": 17, "par": 4, "hcp": 10, "yds": 364, "tips": {"Scott": "Career avg 6.00—penultimate hole, watch right hazard.", "Troy": "Career avg 4.75—stroke hole, aggressive birdie path.", "Allen": "Career avg 6.75—stroke hole, play three clean shots."}},
+            {"num": 18, "par": 4, "hcp": 6, "yds": 346, "tips": {"Scott": "Career avg 5.75—9-point tier finish, aim at clubhouse.", "Troy": "Career avg 6.00—stroke hole, finish strong.", "Allen": "Career avg 6.25—stroke hole, solid closing performance."}},
         ],
     },
     "Salt Pond (Black Tees)": {
