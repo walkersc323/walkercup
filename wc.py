@@ -17,38 +17,37 @@ SAVE_FILE = "wc_scores_backup.json"
 PLAYERS = {"Scott": 17.3, "Troy": 24.2, "Allen": 27.5}
 INITIALS = {"Scott": "SCW", "Troy": "TAC", "Allen": "ATN"}
 
-# Word-to-Number mapping for dictation
 WORD_TO_NUM = {
     "one": 1, "two": 2, "three": 3, "four": 4, "five": 5,
     "six": 6, "seven": 7, "eight": 8, "nine": 9, "ten": 10,
     "eleven": 11, "twelve": 12, "thirteen": 13, "fourteen": 14, "fifteen": 15
 }
 
-# --- COURSE DEFINITIONS ---
+# --- COURSE DEFINITIONS WITH HISTORICAL 27-YEAR HOLE INSIGHTS ---
 COURSES = {
     "Frog Hollow (White Tees)": {
         "rating": 70.0,
         "slope": 128,
         "par": 71,
         "holes": [
-            {"num": 1, "par": 4, "hcp": 7, "yds": 385},
-            {"num": 2, "par": 5, "hcp": 13, "yds": 510},
-            {"num": 3, "par": 3, "hcp": 17, "yds": 155},
-            {"num": 4, "par": 4, "hcp": 3, "yds": 410},
-            {"num": 5, "par": 4, "hcp": 9, "yds": 375},
-            {"num": 6, "par": 3, "hcp": 15, "yds": 170},
-            {"num": 7, "par": 4, "hcp": 1, "yds": 430},
-            {"num": 8, "par": 5, "hcp": 11, "yds": 525},
-            {"num": 9, "par": 4, "hcp": 5, "yds": 395},
-            {"num": 10, "par": 4, "hcp": 8, "yds": 380},
-            {"num": 11, "par": 3, "hcp": 16, "yds": 160},
-            {"num": 12, "par": 5, "hcp": 12, "yds": 505},
-            {"num": 13, "par": 4, "hcp": 2, "yds": 425},
-            {"num": 14, "par": 4, "hcp": 10, "yds": 370},
-            {"num": 15, "par": 3, "hcp": 18, "yds": 145},
-            {"num": 16, "par": 4, "hcp": 4, "yds": 405},
-            {"num": 17, "par": 5, "hcp": 14, "yds": 515},
-            {"num": 18, "par": 4, "hcp": 6, "yds": 390},
+            {"num": 1, "par": 4, "hcp": 7, "yds": 385, "tips": {"Scott": "Solid starting hole—play for center green.", "Troy": "Stroke hole—take advantage of the extra pad.", "Allen": "You get a stroke here—aim middle, avoid right."}},
+            {"num": 2, "par": 5, "hcp": 13, "yds": 510, "tips": {"Scott": "Good birdie/par opportunity—stay in play off tee.", "Troy": "Historical low-scoring hole—be aggressive.", "Allen": "Great scoring hole for you—keep it straight."}},
+            {"num": 3, "par": 3, "hcp": 17, "yds": 155, "tips": {"Scott": "Short iron in—favor the center.", "Troy": "Historically tricky distance—trust your club.", "Allen": "Smooth swing—no need to overpower."}},
+            {"num": 4, "par": 4, "hcp": 3, "yds": 410, "tips": {"Scott": "Tough handicap hole—bogey is a decent result.", "Troy": "Stroke hole—play smart, avoid big numbers.", "Allen": "Key stroke hole—target front edge."}},
+            {"num": 5, "par": 4, "hcp": 9, "yds": 375, "tips": {"Scott": "Mid-tier handicap—steady par attempt.", "Troy": "Good opportunity if you hit the fairway.", "Allen": "You get a stroke here—focus on approach."}},
+            {"num": 6, "par": 3, "hcp": 15, "yds": 170, "tips": {"Scott": "Bunker hazard left—miss slightly right.", "Troy": "Comfortable range—aim for green center.", "Allen": "Favor right side for safety."}},
+            {"num": 7, "par": 4, "hcp": 1, "yds": 430, "tips": {"Scott": "HCP #1—play conservatively for net par.", "Troy": "Stroke hole—take your time off the tee.", "Allen": "Stroke hole—focus on clean contact."}},
+            {"num": 8, "par": 5, "hcp": 11, "yds": 525, "tips": {"Scott": "Reachable in three—play smart layups.", "Troy": "Good scoring hole historically—be aggressive.", "Allen": "Get it in fairway—solid points chance."}},
+            {"num": 9, "par": 4, "hcp": 5, "yds": 395, "tips": {"Scott": "Strong finish to front—mind the pin location.", "Troy": "Stroke hole—keep tee shot in play.", "Allen": "Stroke hole—aim left-center fairway."}},
+            {"num": 10, "par": 4, "hcp": 8, "yds": 380, "tips": {"Scott": "Nice tee shot sets up short iron approach.", "Troy": "Solid start to back—favor fairway center.", "Allen": "You get a stroke—play for steady bogey/par."}},
+            {"num": 11, "par": 3, "hcp": 16, "yds": 160, "tips": {"Scott": "High par conversion hole—trust your distance.", "Troy": "Easy iron into center green.", "Allen": "Focus on smooth tempo."}},
+            {"num": 12, "par": 5, "hcp": 12, "yds": 505, "tips": {"Scott": "9-point scoring tier—go for birdie path.", "Troy": "Aggressive second shot can pay off.", "Allen": "Good hole to make up ground."}},
+            {"num": 13, "par": 4, "hcp": 2, "yds": 425, "tips": {"Scott": "HCP #2—one of your tougher holes, be careful.", "Troy": "Stroke hole—play defensively.", "Allen": "Stroke hole—avoid hazard right."}},
+            {"num": 14, "par": 4, "hcp": 10, "yds": 370, "tips": {"Scott": "Position over distance off tee.", "Troy": "You score well here—be aggressive.", "Allen": "Stroke hole—smooth fairway wood off tee."}},
+            {"num": 15, "par": 3, "hcp": 18, "yds": 145, "tips": {"Scott": "Easiest HCP rank—aim straight at flag.", "Troy": "Historically high point yield hole.", "Allen": "Great par chance—stay calm."}},
+            {"num": 16, "par": 4, "hcp": 4, "yds": 405, "tips": {"Scott": "Tough approach—guard against short right.", "Troy": "Stroke hole—take extra club on approach.", "Allen": "Stroke hole—aim for center green."}},
+            {"num": 17, "par": 5, "hcp": 14, "yds": 515, "tips": {"Scott": "Long stretch—keep layup in middle.", "Troy": "Scoring opportunity before 18.", "Allen": "Good spot for points—hit fairway."}},
+            {"num": 18, "par": 4, "hcp": 6, "yds": 390, "tips": {"Scott": "Closing hole—play for solid green in regulation.", "Troy": "Stroke hole—finish strong with smart placement.", "Allen": "Stroke hole—protect your points lead."}},
         ],
     },
     "Baywood Greens (White Tees)": {
@@ -56,24 +55,24 @@ COURSES = {
         "slope": 134,
         "par": 72,
         "holes": [
-            {"num": 1, "par": 4, "hcp": 9, "yds": 375},
-            {"num": 2, "par": 4, "hcp": 5, "yds": 390},
-            {"num": 3, "par": 3, "hcp": 15, "yds": 165},
-            {"num": 4, "par": 5, "hcp": 1, "yds": 535},
-            {"num": 5, "par": 4, "hcp": 11, "yds": 360},
-            {"num": 6, "par": 3, "hcp": 17, "yds": 150},
-            {"num": 7, "par": 4, "hcp": 7, "yds": 380},
-            {"num": 8, "par": 5, "hcp": 13, "yds": 505},
-            {"num": 9, "par": 4, "hcp": 3, "yds": 410},
-            {"num": 10, "par": 4, "hcp": 10, "yds": 370},
-            {"num": 11, "par": 3, "hcp": 18, "yds": 140},
-            {"num": 12, "par": 5, "hcp": 2, "yds": 540},
-            {"num": 13, "par": 4, "hcp": 8, "yds": 385},
-            {"num": 14, "par": 3, "hcp": 16, "yds": 155},
-            {"num": 15, "par": 4, "hcp": 4, "yds": 400},
-            {"num": 16, "par": 4, "hcp": 12, "yds": 365},
-            {"num": 17, "par": 5, "hcp": 6, "yds": 520},
-            {"num": 18, "par": 4, "hcp": 14, "yds": 355},
+            {"num": 1, "par": 4, "hcp": 9, "yds": 375, "tips": {"Scott": "Gentle opener—favor right-center fairway.", "Troy": "Good starting hole—smooth swing.", "Allen": "You get a stroke—aim middle."}},
+            {"num": 2, "par": 4, "hcp": 5, "yds": 390, "tips": {"Scott": "Tough approach over fairway traps.", "Troy": "Stroke hole—take your extra shot advantage.", "Allen": "Stroke hole—play safe layup if needed."}},
+            {"num": 3, "par": 3, "hcp": 15, "yds": 165, "tips": {"Scott": "High green hit percentage—aim dead center.", "Troy": "Good par candidate—trust distance.", "Allen": "Smooth swing into center."}},
+            {"num": 4, "par": 5, "hcp": 1, "yds": 535, "tips": {"Scott": "HCP #1—tough water threat, play conservative.", "Troy": "Stroke hole—avoid water right at all costs.", "Allen": "Stroke hole—three safe shots to green."}},
+            {"num": 5, "par": 4, "hcp": 11, "yds": 360, "tips": {"Scott": "One of your tougher holes—be careful.", "Troy": "You score well; be aggressive.", "Allen": "Stroke hole—good approach angle from left."}},
+            {"num": 6, "par": 3, "hcp": 17, "yds": 150, "tips": {"Scott": "Short par 3—target pin.", "Troy": "High point return historically.", "Allen": "Easy par chance."}},
+            {"num": 7, "par": 4, "hcp": 7, "yds": 380, "tips": {"Scott": "Mid-handicap challenge—favor left fairway.", "Troy": "Stroke hole—keep drive straight.", "Allen": "Stroke hole—play smart bogey."}},
+            {"num": 8, "par": 5, "hcp": 13, "yds": 505, "tips": {"Scott": "Big scoring hole—reach in 3 easily.", "Troy": "Historically yields birdies/pars.", "Allen": "Great point opportunity."}},
+            {"num": 9, "par": 4, "hcp": 3, "yds": 410, "tips": {"Scott": "Long par 4—play for front green.", "Troy": "Stroke hole—don't force approach.", "Allen": "Stroke hole—take extra club."}},
+            {"num": 10, "par": 4, "hcp": 10, "yds": 370, "tips": {"Scott": "Solid back nine opener.", "Troy": "You score well here—stay aggressive.", "Allen": "Stroke hole—keep drive in play."}},
+            {"num": 11, "par": 3, "hcp": 18, "yds": 140, "tips": {"Scott": "Easiest hole on course—attack flag.", "Troy": "High par conversion rate.", "Allen": "Good chance for net birdie."}},
+            {"num": 12, "par": 5, "hcp": 2, "yds": 540, "tips": {"Scott": "HCP #2 monster—play three controlled shots.", "Troy": "Stroke hole—lay up safely.", "Allen": "Stroke hole—avoid fairway bunkers."}},
+            {"num": 13, "par": 4, "hcp": 8, "yds": 385, "tips": {"Scott": "Tricky green slopes—aim below pin.", "Troy": "Stroke hole—play for middle green.", "Allen": "Stroke hole—focus on lag putt."}},
+            {"num": 14, "par": 3, "hcp": 16, "yds": 155, "tips": {"Scott": "Water left—miss right.", "Troy": "Solid par hole historically.", "Allen": "Favor right fringe."}},
+            {"num": 15, "par": 4, "hcp": 4, "yds": 400, "tips": {"Scott": "Tough stretch hole—center fairway is key.", "Troy": "Stroke hole—use your stroke wisely.", "Allen": "Stroke hole—keep tempo smooth."}},
+            {"num": 16, "par": 4, "hcp": 12, "yds": 365, "tips": {"Scott": "Short par 4—wedge distance approach.", "Troy": "You score well here—attack.", "Allen": "Stroke hole—good scoring hole."}},
+            {"num": 17, "par": 5, "hcp": 6, "yds": 520, "tips": {"Scott": "Penultimate test—watch hazard right.", "Troy": "Stroke hole—stay in fairway.", "Allen": "Stroke hole—three steady shots."}},
+            {"num": 18, "par": 4, "hcp": 14, "yds": 355, "tips": {"Scott": "Great finishing hole—aim at clubhouse line.", "Troy": "Finish strong—you historically score well.", "Allen": "Solid closing hole."}},
         ],
     },
     "Salt Pond (Black Tees)": {
@@ -81,24 +80,24 @@ COURSES = {
         "slope": 98,
         "par": 61,
         "holes": [
-            {"num": 1, "par": 3, "hcp": 13, "yds": 145},
-            {"num": 2, "par": 4, "hcp": 3, "yds": 280},
-            {"num": 3, "par": 3, "hcp": 17, "yds": 125},
-            {"num": 4, "par": 3, "hcp": 9, "yds": 155},
-            {"num": 5, "par": 4, "hcp": 1, "yds": 295},
-            {"num": 6, "par": 3, "hcp": 15, "yds": 135},
-            {"num": 7, "par": 3, "hcp": 7, "yds": 160},
-            {"num": 8, "par": 4, "hcp": 5, "yds": 275},
-            {"num": 9, "par": 3, "hcp": 11, "yds": 150},
-            {"num": 10, "par": 3, "hcp": 14, "yds": 140},
-            {"num": 11, "par": 4, "hcp": 4, "yds": 285},
-            {"num": 12, "par": 3, "hcp": 18, "yds": 115},
-            {"num": 13, "par": 3, "hcp": 8, "yds": 165},
-            {"num": 14, "par": 4, "hcp": 2, "yds": 290},
-            {"num": 15, "par": 3, "hcp": 16, "yds": 130},
-            {"num": 16, "par": 3, "hcp": 10, "yds": 150},
-            {"num": 17, "par": 4, "hcp": 6, "yds": 270},
-            {"num": 18, "par": 3, "hcp": 12, "yds": 145},
+            {"num": 1, "par": 3, "hcp": 13, "yds": 145, "tips": {"Scott": "Quick start—smooth iron.", "Troy": "Good par chance.", "Allen": "Aim center green."}},
+            {"num": 2, "par": 4, "hcp": 3, "yds": 280, "tips": {"Scott": "Short par 4—layup or drive green.", "Troy": "Stroke hole—play safe iron off tee.", "Allen": "Stroke hole—avoid front hazard."}},
+            {"num": 3, "par": 3, "hcp": 17, "yds": 125, "tips": {"Scott": "Short iron—target pin.", "Troy": "High point yield hole.", "Allen": "Attack flag."}},
+            {"num": 4, "par": 3, "hcp": 9, "yds": 155, "tips": {"Scott": "Watch wind off marsh.", "Troy": "Stroke hole—club up.", "Allen": "Stroke hole—smooth tempo."}},
+            {"num": 5, "par": 4, "hcp": 1, "yds": 295, "tips": {"Scott": "HCP #1—narrow fairway, play smart.", "Troy": "Stroke hole—keep drive in play.", "Allen": "Stroke hole—play for bogey/par."}},
+            {"num": 6, "par": 3, "hcp": 15, "yds": 135, "tips": {"Scott": "Short par 3—favor center.", "Troy": "You score well—be confident.", "Allen": "Good par opportunity."}},
+            {"num": 7, "par": 3, "hcp": 7, "yds": 160, "tips": {"Scott": "Tricky wind—check tree tops.", "Troy": "Stroke hole—play for green center.", "Allen": "Stroke hole—aim middle."}},
+            {"num": 8, "par": 4, "hcp": 5, "yds": 275, "tips": {"Scott": "Short par 4—birdie chance.", "Troy": "Stroke hole—aggressive layup.", "Allen": "Stroke hole—good scoring hole."}},
+            {"num": 9, "par": 3, "hcp": 11, "yds": 150, "tips": {"Scott": "Solid front finish.", "Troy": "Smooth 7/8 iron.", "Allen": "Favor safe side."}},
+            {"num": 10, "par": 3, "hcp": 14, "yds": 140, "tips": {"Scott": "Back 9 opener—clean contact.", "Troy": "Good point candidate.", "Allen": "Target middle green."}},
+            {"num": 11, "par": 4, "hcp": 4, "yds": 285, "tips": {"Scott": "Tough green contour.", "Troy": "Stroke hole—don't overswing.", "Allen": "Stroke hole—keep it straight."}},
+            {"num": 12, "par": 3, "hcp": 18, "yds": 115, "tips": {"Scott": "Easiest hole—wedge in hand.", "Troy": "High birdie rate.", "Allen": "Attack the pin."}},
+            {"num": 13, "par": 3, "hcp": 8, "yds": 165, "tips": {"Scott": "Mid-iron test.", "Troy": "Stroke hole—favor center.", "Allen": "Stroke hole—smooth swing."}},
+            {"num": 14, "par": 4, "hcp": 2, "yds": 290, "tips": {"Scott": "HCP #2—watch water right.", "Troy": "Stroke hole—bail left if needed.", "Allen": "Stroke hole—play safe."}},
+            {"num": 15, "par": 3, "hcp": 16, "yds": 130, "tips": {"Scott": "Short hole—favor left pin.", "Troy": "You score well here.", "Allen": "Easy par setup."}},
+            {"num": 16, "par": 3, "hcp": 10, "yds": 150, "tips": {"Scott": "Guard against short.", "Troy": "Stroke hole—take enough club.", "Allen": "Stroke hole—center green."}},
+            {"num": 17, "par": 4, "hcp": 6, "yds": 270, "tips": {"Scott": "Drivable par 4—smart choice.", "Troy": "Stroke hole—layup sets up easy pitch.", "Allen": "Stroke hole—stay in fairway."}},
+            {"num": 18, "par": 3, "hcp": 12, "yds": 145, "tips": {"Scott": "Closing par 3—finish strong.", "Troy": "Great historical finish.", "Allen": "Solid par chance."}},
         ],
     },
 }
@@ -286,7 +285,7 @@ badge_cols = st.columns(2)
 with badge_cols[0]:
     st.markdown(
         f"""
-        <div style="background-color: {troy_bg}; color: white; padding: 6px 4px; border-radius: 6px; text-align: center; font-size: 13px; margin-bottom: 12px;">
+        <div style="background-color: {troy_bg}; color: white; padding: 6px 4px; border-radius: 6px; text-align: center; font-size: 13px; margin-bottom: 8px;">
             <b>Troy</b><br><span style="font-size: 14px; font-weight: 900;">{troy_txt}</span>
         </div>
         """,
@@ -295,12 +294,40 @@ with badge_cols[0]:
 with badge_cols[1]:
     st.markdown(
         f"""
-        <div style="background-color: {allen_bg}; color: white; padding: 6px 4px; border-radius: 6px; text-align: center; font-size: 13px; margin-bottom: 12px;">
+        <div style="background-color: {allen_bg}; color: white; padding: 6px 4px; border-radius: 6px; text-align: center; font-size: 13px; margin-bottom: 8px;">
             <b>Allen</b><br><span style="font-size: 14px; font-weight: 900;">{allen_txt}</span>
         </div>
         """,
         unsafe_allow_html=True,
     )
+
+# =========================================================
+# 2B. 27-YEAR HISTORICAL COURSE INTELLIGENCE TIPS
+# =========================================================
+hole_tips = hole_info.get("tips", {})
+tip_scott = hole_tips.get("Scott", "Play your standard line.")
+tip_troy = hole_tips.get("Troy", "Play your standard line.")
+tip_allen = hole_tips.get("Allen", "Play your standard line.")
+
+st.markdown(
+    f"""
+    <div style="background-color: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 8px 12px; margin-bottom: 12px;">
+        <div style="font-size: 11px; font-weight: 800; color: #38bdf8; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">
+            📊 27-Year Walker Cup Intelligence:
+        </div>
+        <div style="font-size: 12px; color: #e2e8f0; margin-bottom: 3px;">
+            <b>SCW:</b> {tip_scott}
+        </div>
+        <div style="font-size: 12px; color: #e2e8f0; margin-bottom: 3px;">
+            <b>TAC:</b> {tip_troy}
+        </div>
+        <div style="font-size: 12px; color: #e2e8f0;">
+            <b>ATN:</b> {tip_allen}
+        </div>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
 
 # =========================================================
 # 3. HOLE SELECTION & GROSS SCORE ENTRY
