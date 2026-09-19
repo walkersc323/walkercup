@@ -264,9 +264,11 @@ for i, (player, initial) in enumerate(INITIALS.items()):
 # =========================================================
 # 2. HOLE INFORMATION & STROKE BADGES
 # =========================================================
+course_short_name = selected_course.split("(")[0].strip().upper()
+
 hdr_html = f"""
 <div style="background-color: #15803d; padding: 8px 12px; border-radius: 8px; margin-top: 5px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
-    <span style="color: #ffffff; font-size: 20px; font-weight: 800;">⛳ HOLE {hole_num}</span>
+    <span style="color: #ffffff; font-size: 18px; font-weight: 800;">⛳ {course_short_name} — HOLE {hole_num}</span>
     <span style="color: #ffffff; font-size: 14px; font-weight: 700;">PAR <b>{hole_info['par']}</b> &nbsp;|&nbsp; <b>{pts_val} PTS</b> &nbsp;|&nbsp; HCP <b>{hole_info['hcp']}</b></span>
 </div>
 """
@@ -302,7 +304,7 @@ with badge_cols[1]:
     )
 
 # =========================================================
-# 2B. 27-YEAR HISTORICAL COURSE INTELLIGENCE TIPS
+# 2B. WALKER CUP INTELLIGENCE ENGINE TIPS
 # =========================================================
 hole_tips = hole_info.get("tips", {})
 tip_scott = hole_tips.get("Scott", "Play your standard line.")
@@ -313,7 +315,7 @@ st.markdown(
     f"""
     <div style="background-color: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 8px 12px; margin-bottom: 12px;">
         <div style="font-size: 11px; font-weight: 800; color: #38bdf8; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">
-            📊 27-Year Walker Cup Intelligence:
+            📊 Walker Cup Intelligence Engine:
         </div>
         <div style="font-size: 12px; color: #e2e8f0; margin-bottom: 3px;">
             <b>SCW:</b> {tip_scott}
