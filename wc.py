@@ -76,8 +76,8 @@ COURSES = {
         ],
     },
     "Salt Pond (Black Tees)": {
-        "rating": 58.2,
-        "slope": 98,
+        "rating": 56.5,
+        "slope": 96,
         "par": 61,
         "holes": [
             {"num": 1, "par": 3, "hcp": 6, "yds": 151, "tips": {"Scott": "Career avg 4.50—smooth iron to center green.", "Troy": "Career avg 3.50—stroke hole, aim at flag.", "Allen": "Career avg 7.00—stroke hole, take extra club off tee."}},
