@@ -57,7 +57,7 @@ COURSES = {
         "holes": [
             {"num": 1, "par": 4, "hcp": 13, "yds": 349, "tips": {"Scott": "Career avg 4.60—solid opener, favor left-center.", "Troy": "Career avg 4.20—great hole for you; be aggressive.", "Allen": "Career avg 6.00—stroke hole, play for net par."}},
             {"num": 2, "par": 4, "hcp": 11, "yds": 318, "tips": {"Scott": "Career avg 5.20—steady par/bogey history.", "Troy": "Career avg 4.60—stroke hole advantage, attack flag.", "Allen": "Career avg 6.75—stroke hole, play safe layup."}},
-            {"num": 3, "par": 4, "hcp": 3, "yds": 395, "tips": {"Scott": "Career avg 5.80—9-point tier, guard against right hazard.", "Troy": "Career avg 5.00—stroke hole, solid par candidate.", "Allen": "Career avg 5.20—stroke hole, smooth tempo."}},
+            {"num": 3, "par": 4, "hcp": 3, "yds": 395, "tips": {"Scott": "Career avg 5.80—9-point tier, guard against right hazard.", "Troy": "Career avg 5.00—stroke hole, solid par candidate.", "Allen": "Career avg 5.20—smooth tempo."}},
             {"num": 4, "par": 4, "hcp": 1, "yds": 422, "tips": {"Scott": "Career avg 7.20—HCP #1, 9-point tier, long approach over traps.", "Troy": "Career avg 5.40—stroke hole, you play this very well.", "Allen": "Career avg 6.50—stroke hole, play center green."}},
             {"num": 5, "par": 5, "hcp": 5, "yds": 515, "tips": {"Scott": "Career avg 8.00—9-point tier, play conservative layups.", "Troy": "Career avg 8.60—stroke hole, avoid water right at all costs.", "Allen": "Career avg 6.60—stroke hole, you score best here!"}},
             {"num": 6, "par": 3, "hcp": 15, "yds": 202, "tips": {"Scott": "Career avg 5.60—long par 3, take extra club.", "Troy": "Career avg 6.20—smooth swing into green center.", "Allen": "Career avg 5.20—great chance for net par."}},
@@ -216,4 +216,395 @@ def parse_spoken_text(text):
         return scores_found
 
     all_numbers = re.findall(r"\b([1-9]|1[0-5])\b", text_clean)
-    if len(all_
+    if len(all_numbers) >= 3:
+        player_order = ["Scott", "Troy", "Allen"]
+        for idx in range(3):
+            scores_found[player_order[idx]] = int(all_numbers[idx])
+
+    return scores_found
+
+# --- INITIALIZE SESSION STATE WITH FILE BACKUP ---
+if "scores" not in st.session_state:
+    st.session_state.scores = load_saved_scores()
+
+if "selected_hole" not in st.session_state:
+    st.session_state.selected_hole = 1
+
+if "selected_course" not in st.session_state:
+    st.session_state.selected_course = list(COURSES.keys())[0]
+
+selected_course = st.session_state.selected_course
+if selected_course not in COURSES:
+    selected_course = list(COURSES.keys())[0]
+    st.session_state.selected_course = selected_course
+
+stroke_diffs = get_strokes_off_lowest(selected_course)
+
+course_data = COURSES[selected_course]
+hole_num = st.session_state.selected_hole
+hole_info = course_data["holes"][hole_num - 1]
+pts_val = get_hole_point_value(hole_info["hcp"])
+
+# =========================================================
+# 1. TOP HEADER: TITLE & 3 SCORE BOXES
+# =========================================================
+st.markdown(
+    "<h4 style='text-align: center; margin-top: -10px; margin-bottom: 8px;'>⛳ The Walker Cup 2026</h4>",
+    unsafe_allow_html=True,
+)
+
+st.markdown(
+    """
+    <div style="text-align: center; font-size: 12px; color: #94a3b8; margin-bottom: 10px;">
+        📅 <b>Round 1:</b> Sun Oct 18 — Salt Pond (1:00 PM)<br>
+        📅 <b>Round 2:</b> Mon Oct 19 — Baywood Greens (2:00 PM)<br>
+        📅 <b>Round 3:</b> Tue Oct 20 — Odessa National (2:10 PM)
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
+
+live_totals = get_total_standings()
+top_score_cols = st.columns(3)
+for i, (player, initial) in enumerate(INITIALS.items()):
+    with top_score_cols[i]:
+        card_html = f"""
+        <div style="background-color: #0f172a; border: 1px solid #334155; border-radius: 8px; padding: 6px 2px; text-align: center; margin-bottom: 10px;">
+            <div style="font-size: 13px; font-weight: 700; color: #94a3b8; letter-spacing: 1px;">{initial}</div>
+            <div style="font-size: 28px; font-weight: 900; color: #ffffff; line-height: 1.1;">{live_totals[player]}</div>
+        </div>
+        """
+        st.markdown(card_html, unsafe_allow_html=True)
+
+# =========================================================
+# 2. HOLE INFORMATION & STROKE BADGES
+# =========================================================
+course_short_name = selected_course.split("(")[0].strip().upper()
+
+hdr_html = f"""
+<div style="background-color: #15803d; padding: 8px 12px; border-radius: 8px; margin-top: 5px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
+    <span style="color: #ffffff; font-size: 18px; font-weight: 800;">⛳ {course_short_name} — HOLE {hole_num}</span>
+    <span style="color: #ffffff; font-size: 14px; font-weight: 700;">PAR <b>{hole_info['par']}</b> &nbsp;|&nbsp; <b>{pts_val} PTS</b> &nbsp;|&nbsp; HCP <b>{hole_info['hcp']}</b></span>
+</div>
+"""
+st.markdown(hdr_html, unsafe_allow_html=True)
+
+troy_strokes = 1 if stroke_diffs["Troy"] >= hole_info["hcp"] else 0
+allen_strokes = 1 if stroke_diffs["Allen"] >= hole_info["hcp"] else 0
+
+troy_bg = "#dc2626" if troy_strokes > 0 else "#334155"
+allen_bg = "#dc2626" if allen_strokes > 0 else "#334155"
+
+troy_txt = f"+{troy_strokes} Stroke" if troy_strokes > 0 else "Scratch"
+allen_txt = f"+{allen_strokes} Stroke" if allen_strokes > 0 else "Scratch"
+
+badge_cols = st.columns(2)
+with badge_cols[0]:
+    st.markdown(
+        f"""
+        <div style="background-color: {troy_bg}; color: white; padding: 6px 4px; border-radius: 6px; text-align: center; font-size: 13px; margin-bottom: 8px;">
+            <b>Troy</b><br><span style="font-size: 14px; font-weight: 900;">{troy_txt}</span>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+with badge_cols[1]:
+    st.markdown(
+        f"""
+        <div style="background-color: {allen_bg}; color: white; padding: 6px 4px; border-radius: 6px; text-align: center; font-size: 13px; margin-bottom: 8px;">
+            <b>Allen</b><br><span style="font-size: 14px; font-weight: 900;">{allen_txt}</span>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+# =========================================================
+# 2B. WALKER CUP INTELLIGENCE ENGINE TIPS
+# =========================================================
+hole_tips = hole_info.get("tips", {})
+tip_scott = hole_tips.get("Scott", "Play your standard line.")
+tip_troy = hole_tips.get("Troy", "Play your standard line.")
+tip_allen = hole_tips.get("Allen", "Play your standard line.")
+
+st.markdown(
+    f"""
+    <div style="background-color: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 8px 12px; margin-bottom: 12px;">
+        <div style="font-size: 11px; font-weight: 800; color: #38bdf8; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">
+            📊 Walker Cup Intelligence Engine:
+        </div>
+        <div style="font-size: 12px; color: #e2e8f0; margin-bottom: 3px;">
+            <b>SCW:</b> {tip_scott}
+        </div>
+        <div style="font-size: 12px; color: #e2e8f0; margin-bottom: 3px;">
+            <b>TAC:</b> {tip_troy}
+        </div>
+        <div style="font-size: 12px; color: #e2e8f0;">
+            <b>ATN:</b> {tip_allen}
+        </div>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+
+# =========================================================
+# 3. HOLE SELECTION & GROSS SCORE ENTRY
+# =========================================================
+st.markdown(
+    """
+    <style>
+    div[data-testid="stHorizontalBlock"] {
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        gap: 2px !important;
+    }
+    div[data-testid="stHorizontalBlock"] > div {
+        min-width: 0 !important;
+        flex: 1 1 0 !important;
+    }
+    div[data-testid="stHorizontalBlock"] button {
+        padding: 4px 0px !important;
+        font-size: 13px !important;
+    }
+    </style>
+""",
+    unsafe_allow_html=True,
+)
+
+st.write("**Select Hole:**")
+
+cols_front = st.columns(9)
+for h_i in range(1, 10):
+    btn_type = (
+        "primary" if st.session_state.selected_hole == h_i else "secondary"
+    )
+    if cols_front[h_i - 1].button(
+        str(h_i), key=f"btn_{h_i}", type=btn_type, use_container_width=True
+    ):
+        st.session_state.selected_hole = h_i
+        st.rerun()
+
+cols_back = st.columns(9)
+for h_i in range(10, 19):
+    btn_type = (
+        "primary" if st.session_state.selected_hole == h_i else "secondary"
+    )
+    if cols_back[h_i - 10].button(
+        str(h_i), key=f"btn_{h_i}", type=btn_type, use_container_width=True
+    ):
+        st.session_state.selected_hole = h_i
+        st.rerun()
+
+st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
+st.subheader("📝 Enter Gross Scores")
+
+voice_key = f"voice_{selected_course}_{hole_num}"
+
+voice_input = st.text_input(
+    "🎙️ Dictate Scores (e.g. 'Scott 4 Troy 6 Allen 5')",
+    key=voice_key,
+)
+
+saved_scores = st.session_state.scores.get(selected_course, {}).get(hole_num, {})
+current_scores = {p: saved_scores.get(p, hole_info["par"]) for p in PLAYERS}
+
+if voice_input:
+    parsed_results = parse_spoken_text(voice_input)
+    for p_name, val in parsed_results.items():
+        current_scores[p_name] = val
+        widget_key = f"{selected_course}_{hole_num}_{p_name}"
+        st.session_state[widget_key] = val
+
+cols = st.columns(3)
+user_inputs = {}
+for i, p in enumerate(PLAYERS.keys()):
+    w_key = f"{selected_course}_{hole_num}_{p}"
+    if w_key not in st.session_state:
+        st.session_state[w_key] = current_scores[p]
+
+    with cols[i]:
+        user_inputs[p] = st.number_input(
+            f"{p}",
+            min_value=1,
+            max_value=15,
+            key=w_key,
+        )
+
+# --- SAVE SCORE & PERSIST TO FILE ---
+if st.button("💾 Save Score for Hole", type="primary", use_container_width=True):
+    if selected_course not in st.session_state.scores:
+        st.session_state.scores[selected_course] = {}
+    st.session_state.scores[selected_course][hole_num] = user_inputs
+    save_scores_to_disk()
+    st.success(f"Scores saved for Hole {hole_num}!")
+
+    if st.session_state.selected_hole < 18:
+        st.session_state.selected_hole += 1
+
+    st.rerun()
+
+# =========================================================
+# 4. CURRENT COURSE LEADERBOARD STANDINGS
+# =========================================================
+st.markdown("<div style='margin-top: 15px;'></div>", unsafe_allow_html=True)
+st.subheader(f"🏆 Round Standings ({selected_course})")
+
+course_standings = get_course_standings(selected_course)
+
+st.markdown(
+    """
+    <style>
+    .leaderboard-card {
+        padding: 12px 18px;
+        border-radius: 10px;
+        margin-bottom: 10px;
+        font-size: 18px;
+        font-weight: bold;
+        display: flex;
+        justify-content: space-between;
+    }
+    .first-place { background-color: #ffd700; color: #000; }
+    .second-place { background-color: #c0c0c0; color: #000; }
+    .third-place { background-color: #cd7f32; color: #fff; }
+    </style>
+""",
+    unsafe_allow_html=True,
+)
+
+sorted_standings = sorted(
+    course_standings.items(), key=lambda x: x[1], reverse=True
+)
+styles = ["first-place", "second-place", "third-place"]
+badges = ["🥇", "🥈", "🥉"]
+
+for rank, (player, score) in enumerate(sorted_standings):
+    badge = badges[rank]
+    style = styles[rank]
+    st.markdown(
+        f"""
+        <div class="leaderboard-card {style}">
+            <span>{badge} #{rank+1} {player}</span>
+            <span>{score} PTS</span>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+# =========================================================
+# 5. MINI SCORECARD
+# =========================================================
+st.divider()
+st.subheader("📋 Mini Scorecard")
+
+table_rows = ""
+for h in course_data["holes"]:
+    h_no = h["num"]
+    h_val = get_hole_point_value(h["hcp"])
+
+    scott_str, troy_str, allen_str = "-", "-", "-"
+    scott_style, troy_style, allen_style = "", "", ""
+
+    if h_no in st.session_state.scores.get(selected_course, {}):
+        gross = st.session_state.scores[selected_course][h_no]
+        if len(gross) == 3:
+            nets, pts, winners = calculate_hole_points(
+                gross, h["hcp"], stroke_diffs
+            )
+
+            scott_str = f"{nets['Scott']} ({gross['Scott']})"
+            troy_str = f"{nets['Troy']} ({gross['Troy']})"
+            allen_str = f"{nets['Allen']} ({gross['Allen']})"
+
+            is_tie = len(winners) > 1
+
+            if "Scott" in winners:
+                scott_style = (
+                    "background-color: #eab308; color: #000000; font-weight: bold;"
+                    if is_tie
+                    else "background-color: #15803d; color: #ffffff; font-weight: bold;"
+                )
+            if "Troy" in winners:
+                troy_style = (
+                    "background-color: #eab308; color: #000000; font-weight: bold;"
+                    if is_tie
+                    else "background-color: #15803d; color: #ffffff; font-weight: bold;"
+                )
+            if "Allen" in winners:
+                allen_style = (
+                    "background-color: #eab308; color: #000000; font-weight: bold;"
+                    if is_tie
+                    else "background-color: #15803d; color: #ffffff; font-weight: bold;"
+                )
+
+    row_html = f"""
+        <tr>
+            <td style="padding: 6px 4px; border: 1px solid #334155; text-align: center;"><b>#{h_no}</b></td>
+            <td style="padding: 6px 4px; border: 1px solid #334155; text-align: center;">{h['yds']}</td>
+            <td style="padding: 6px 4px; border: 1px solid #334155; text-align: center;">{h['par']}</td>
+            <td style="padding: 6px 4px; border: 1px solid #334155; text-align: center;">{h['hcp']}</td>
+            <td style="padding: 6px 4px; border: 1px solid #334155; text-align: center;"><b>{h_val}</b></td>
+            <td style="padding: 6px 4px; border: 1px solid #334155; text-align: center; {scott_style}">{scott_str}</td>
+            <td style="padding: 6px 4px; border: 1px solid #334155; text-align: center; {troy_style}">{troy_str}</td>
+            <td style="padding: 6px 4px; border: 1px solid #334155; text-align: center; {allen_style}">{allen_str}</td>
+        </tr>
+    """
+    table_rows += row_html
+
+full_html = f"""
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {{ font-family: sans-serif; background-color: transparent; color: #ffffff; margin: 0; padding: 0; }}
+        table {{ width: 100%; border-collapse: collapse; font-size: 13px; }}
+        th {{ background-color: #0f172a; color: #ffffff; padding: 8px 4px; border: 1px solid #334155; font-size: 12px; }}
+    </style>
+</head>
+<body>
+    <table>
+        <thead>
+            <tr>
+                <th>Hole</th>
+                <th>Yds</th>
+                <th>Par</th>
+                <th>Hcp</th>
+                <th>Pts</th>
+                <th>Scott</th>
+                <th>Troy</th>
+                <th>Allen</th>
+            </tr>
+        </thead>
+        <tbody>
+            {table_rows}
+        </tbody>
+    </table>
+</body>
+</html>
+"""
+
+components.html(full_html, height=520, scrolling=True)
+
+# =========================================================
+# 6. COURSE SELECTOR & RESET BUTTON (BOTTOM)
+# =========================================================
+st.divider()
+
+b_col1, b_col2 = st.columns(2)
+with b_col1:
+    selected_course_input = st.selectbox(
+        "⚙️ Select Course / Round",
+        list(COURSES.keys()),
+        index=list(COURSES.keys()).index(st.session_state.selected_course),
+        key="course_picker_bottom",
+    )
+    if selected_course_input != st.session_state.selected_course:
+        st.session_state.selected_course = selected_course_input
+        st.rerun()
+
+with b_col2:
+    st.write("&nbsp;")
+    if st.button("🔄 Reset Tournament Scores", use_container_width=True):
+        if os.path.exists(SAVE_FILE):
+            os.remove(SAVE_FILE)
+        st.session_state.scores = {c: {} for c in COURSES}
+        st.rerun()
