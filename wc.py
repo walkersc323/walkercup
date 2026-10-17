@@ -8,7 +8,7 @@ import streamlit.components.v1 as components
 
 # --- APP CONFIGURATION ---
 st.set_page_config(
-    page_title="The Walker Cup", page_icon="⛳", layout="centered"
+    page_title="The Walker Cup 2026", page_icon="⛳", layout="centered"
 )
 
 SAVE_FILE = "wc_scores_backup.json"
@@ -25,29 +25,29 @@ WORD_TO_NUM = {
 
 # --- COURSE DEFINITIONS WITH OFFICIAL SCORECARDS & HISTORICAL INSIGHTS ---
 COURSES = {
-    "Frog Hollow (Gold Tees)": {
-        "rating": 67.3,
-        "slope": 115,
-        "par": 71,
+    "Salt Pond (Black Tees)": {
+        "rating": 56.5,
+        "slope": 96,
+        "par": 61,
         "holes": [
-            {"num": 1, "par": 4, "hcp": 8, "yds": 327, "tips": {"Scott": "Solid opener—favor center-right fairway.", "Troy": "6-point tier—good scoring opportunity.", "Allen": "6-point tier—keep drive in play."}},
-            {"num": 2, "par": 5, "hcp": 6, "yds": 465, "tips": {"Scott": "9-point tier—reachable in three; aim middle.", "Troy": "Stroke hole—take advantage of your extra stroke.", "Allen": "Stroke hole—great scoring hole, play smart layup."}},
-            {"num": 3, "par": 3, "hcp": 16, "yds": 122, "tips": {"Scott": "Short iron in hand—favor center green.", "Troy": "Comfortable range—trust your distance.", "Allen": "Smooth swing—target green middle."}},
-            {"num": 4, "par": 4, "hcp": 2, "yds": 315, "tips": {"Scott": "HCP #2—9-point tier, play for front green.", "Troy": "Stroke hole—play defensively, avoid big numbers.", "Allen": "Key stroke hole—aim for front green edge."}},
-            {"num": 5, "par": 5, "hcp": 10, "yds": 395, "tips": {"Scott": "Short par 5—6-point tier, good birdie path.", "Troy": "Stroke hole—great chance for net birdie.", "Allen": "Stroke hole—focus on approach contact."}},
-            {"num": 6, "par": 3, "hcp": 12, "yds": 164, "tips": {"Scott": "Bunker hazard left—miss slightly right.", "Troy": "Solid iron range—aim for green center.", "Allen": "Favor right fringe for safety."}},
-            {"num": 7, "par": 4, "hcp": 4, "yds": 347, "tips": {"Scott": "9-point tier—favor left-center fairway.", "Troy": "Stroke hole—take your time off the tee.", "Allen": "Stroke hole—clean fairway contact is priority."}},
-            {"num": 8, "par": 3, "hcp": 18, "yds": 124, "tips": {"Scott": "Easiest HCP rank on front—attack pin directly.", "Troy": "High historical point yield hole.", "Allen": "Great par candidate—stay calm."}},
-            {"num": 9, "par": 4, "hcp": 14, "yds": 336, "tips": {"Scott": "Strong front finish—mind the pin placement.", "Troy": "Solid drive sets up easy approach.", "Allen": "Aim left-center fairway."}},
-            {"num": 10, "par": 4, "hcp": 7, "yds": 359, "tips": {"Scott": "Good tee shot sets up short approach.", "Troy": "Stroke hole—favor fairway center.", "Allen": "Stroke hole—play for steady bogey/par."}},
-            {"num": 11, "par": 5, "hcp": 13, "yds": 431, "tips": {"Scott": "Short par 5—go for birdie/par path.", "Troy": "Easy layups set up wedge approach.", "Allen": "Good hole to make up points."}},
-            {"num": 12, "par": 4, "hcp": 11, "yds": 354, "tips": {"Scott": "6-point tier—position over distance off tee.", "Troy": "Stroke hole—smooth fairway wood off tee.", "Allen": "Stroke hole—favor green middle."}},
-            {"num": 13, "par": 4, "hcp": 9, "yds": 319, "tips": {"Scott": "Short par 4—6-point tier, wedge in hand.", "Troy": "Stroke hole—historically score well here.", "Allen": "Stroke hole—avoid hazard on right."}},
-            {"num": 14, "par": 3, "hcp": 15, "yds": 125, "tips": {"Scott": "Short par 3—attack flag location.", "Troy": "Smooth iron into center of green.", "Allen": "High par conversion rate."}},
-            {"num": 15, "par": 4, "hcp": 3, "yds": 410, "tips": {"Scott": "Longest par 4—9-point tier, play for net par.", "Troy": "Stroke hole—take extra club on approach.", "Allen": "Stroke hole—guard against short-right."}},
-            {"num": 16, "par": 3, "hcp": 17, "yds": 165, "tips": {"Scott": "High par conversion hole—trust club selection.", "Troy": "Aim for green center.", "Allen": "Smooth tempo—avoid short bunker."}},
-            {"num": 17, "par": 4, "hcp": 1, "yds": 381, "tips": {"Scott": "HCP #1 monster—9-point tier, play smart layups.", "Troy": "Stroke hole—play defensively.", "Allen": "Stroke hole—keep drive in fairway."}},
-            {"num": 18, "par": 5, "hcp": 5, "yds": 415, "tips": {"Scott": "Short par 5 finish—9-point tier, finish strong!", "Troy": "Stroke hole—aggressive birdie path.", "Allen": "Stroke hole—protect your points lead!"}},
+            {"num": 1, "par": 3, "hcp": 6, "yds": 151, "tips": {"Scott": "Career avg 4.50—smooth iron to center green.", "Troy": "Career avg 3.50—stroke hole, aim at flag.", "Allen": "Career avg 7.00—stroke hole, take extra club off tee."}},
+            {"num": 2, "par": 3, "hcp": 18, "yds": 113, "tips": {"Scott": "Career avg 3.50—short iron in hand; attack flag.", "Troy": "Career avg 3.00—high par rate; trust distance.", "Allen": "Career avg 4.00—easiest handicap rank, go for pin."}},
+            {"num": 3, "par": 3, "hcp": 8, "yds": 180, "tips": {"Scott": "Career avg 4.00—6-point tier, favor center green.", "Troy": "Career avg 3.00—stroke hole, high point yield.", "Allen": "Career avg 4.00—stroke hole, play middle green."}},
+            {"num": 4, "par": 3, "hcp": 16, "yds": 104, "tips": {"Scott": "Career avg 3.00—YOUR BEST PAR 3! Attack pin.", "Troy": "Career avg 3.00—wedge range, attack pin directly.", "Allen": "Career avg 4.00—smooth swing to green center."}},
+            {"num": 5, "par": 4, "hcp": 2, "yds": 260, "tips": {"Scott": "Career avg 4.00—only par 4 on front; 9-point tier.", "Troy": "Career avg 4.50—stroke hole, keep drive in fairway.", "Allen": "Career avg 5.00—stroke hole, play for net par."}},
+            {"num": 6, "par": 3, "hcp": 14, "yds": 150, "tips": {"Scott": "Career avg 4.00—favor green center.", "Troy": "Career avg 4.00—solid par history.", "Allen": "Career avg 3.00—GREAT PAR HOLE FOR YOU!"}},
+            {"num": 7, "par": 3, "hcp": 10, "yds": 200, "tips": {"Scott": "Career avg 3.50—check wind off trees; long par 3.", "Troy": "Career avg 4.00—stroke hole, aim center.", "Allen": "Career avg 6.00—stroke hole, club up."}},
+            {"num": 8, "par": 3, "hcp": 4, "yds": 184, "tips": {"Scott": "Career avg 4.50—9-point tier, favor front green.", "Troy": "Career avg 3.50—stroke hole, aggressive birdie chance.", "Allen": "Career avg 4.00—stroke hole, great net score history."}},
+            {"num": 9, "par": 3, "hcp": 12, "yds": 125, "tips": {"Scott": "Career avg 4.00—solid front finish.", "Troy": "Career avg 5.00—watch front bunker.", "Allen": "Career avg 4.00—smooth swing to middle green."}},
+            {"num": 10, "par": 3, "hcp": 7, "yds": 177, "tips": {"Scott": "Career avg 4.00—back 9 opener; 6-point tier.", "Troy": "Career avg 3.50—stroke hole, great start to back 9.", "Allen": "Career avg 4.00—stroke hole, solid par setup."}},
+            {"num": 11, "par": 3, "hcp": 17, "yds": 112, "tips": {"Scott": "Career avg 4.00—short hole; attack pin location.", "Troy": "Career avg 4.00—high par conversion rate.", "Allen": "Career avg 3.00—EXCELLENT SCORING HOLE!"}},
+            {"num": 12, "par": 3, "hcp": 5, "yds": 198, "tips": {"Scott": "Career avg 3.00—9-point tier, long iron test.", "Troy": "Career avg 2.50—stroke hole, YOUR BEST HOLE AT SALT POND!", "Allen": "Career avg 3.00—stroke hole, net birdie candidate!"}},
+            {"num": 13, "par": 3, "hcp": 11, "yds": 212, "tips": {"Scott": "Career avg 3.50—longest par 3 on back 9.", "Troy": "Career avg 3.00—stroke hole, high point yield.", "Allen": "Career avg 3.00—stroke hole, favor center green."}},
+            {"num": 14, "par": 3, "hcp": 13, "yds": 165, "tips": {"Scott": "Career avg 4.50—mid-iron approach.", "Troy": "Career avg 3.50—aggressive tee shot path.", "Allen": "Career avg 5.00—play safe layup/chip."}},
+            {"num": 15, "par": 3, "hcp": 15, "yds": 143, "tips": {"Scott": "Career avg 3.00—high par conversion hole.", "Troy": "Career avg 3.00—attack flag directly.", "Allen": "Career avg 3.00—great par performance."}},
+            {"num": 16, "par": 4, "hcp": 1, "yds": 260, "tips": {"Scott": "Career avg 5.00—HCP #1, 9-point tier, drivable par 4.", "Troy": "Career avg 5.00—stroke hole, keep drive straight.", "Allen": "Career avg 4.00—stroke hole, play safe layup."}},
+            {"num": 17, "par": 3, "hcp": 9, "yds": 170, "tips": {"Scott": "Career avg 5.00—penultimate par 3; 6-point tier.", "Troy": "Career avg 5.50—stroke hole, favor center green.", "Allen": "Career avg 4.00—stroke hole, net par candidate."}},
+            {"num": 18, "par": 3, "hcp": 3, "yds": 190, "tips": {"Scott": "Career avg 4.50—closing hole; 9-point tier finish.", "Troy": "Career avg 6.00—stroke hole, finish strong.", "Allen": "Career avg 3.00—stroke hole, YOUR BEST CLOSING HOLE!"}},
         ],
     },
     "Baywood Greens (White Tees)": {
@@ -75,29 +75,29 @@ COURSES = {
             {"num": 18, "par": 4, "hcp": 6, "yds": 346, "tips": {"Scott": "Career avg 5.75—9-point tier finish, aim at clubhouse.", "Troy": "Career avg 6.00—stroke hole, finish strong.", "Allen": "Career avg 6.25—solid closing performance."}},
         ],
     },
-    "Salt Pond (Black Tees)": {
-        "rating": 56.5,
-        "slope": 96,
-        "par": 61,
+    "Odessa National (Gold Tees)": {
+        "rating": 66.9,
+        "slope": 124,
+        "par": 72,
         "holes": [
-            {"num": 1, "par": 3, "hcp": 6, "yds": 151, "tips": {"Scott": "Career avg 4.50—smooth iron to center green.", "Troy": "Career avg 3.50—stroke hole, aim at flag.", "Allen": "Career avg 7.00—stroke hole, take extra club off tee."}},
-            {"num": 2, "par": 3, "hcp": 18, "yds": 113, "tips": {"Scott": "Career avg 3.50—short iron in hand; attack flag.", "Troy": "Career avg 3.00—high par rate; trust distance.", "Allen": "Career avg 4.00—easiest handicap rank, go for pin."}},
-            {"num": 3, "par": 3, "hcp": 8, "yds": 180, "tips": {"Scott": "Career avg 4.00—6-point tier, favor center green.", "Troy": "Career avg 3.00—stroke hole, high point yield.", "Allen": "Career avg 4.00—stroke hole, play middle green."}},
-            {"num": 4, "par": 3, "hcp": 16, "yds": 104, "tips": {"Scott": "Career avg 3.00—YOUR BEST PAR 3! Attack pin.", "Troy": "Career avg 3.00—wedge range, attack pin directly.", "Allen": "Career avg 4.00—smooth swing to green center."}},
-            {"num": 5, "par": 4, "hcp": 2, "yds": 260, "tips": {"Scott": "Career avg 4.00—only par 4 on front; 9-point tier.", "Troy": "Career avg 4.50—stroke hole, keep drive in fairway.", "Allen": "Career avg 5.00—stroke hole, play for net par."}},
-            {"num": 6, "par": 3, "hcp": 14, "yds": 150, "tips": {"Scott": "Career avg 4.00—favor green center.", "Troy": "Career avg 4.00—solid par history.", "Allen": "Career avg 3.00—GREAT PAR HOLE FOR YOU!"}},
-            {"num": 7, "par": 3, "hcp": 10, "yds": 200, "tips": {"Scott": "Career avg 3.50—check wind off trees; long par 3.", "Troy": "Career avg 4.00—stroke hole, aim center.", "Allen": "Career avg 6.00—stroke hole, club up."}},
-            {"num": 8, "par": 3, "hcp": 4, "yds": 184, "tips": {"Scott": "Career avg 4.50—9-point tier, favor front green.", "Troy": "Career avg 3.50—stroke hole, aggressive birdie chance.", "Allen": "Career avg 4.00—stroke hole, great net score history."}},
-            {"num": 9, "par": 3, "hcp": 12, "yds": 125, "tips": {"Scott": "Career avg 4.00—solid front finish.", "Troy": "Career avg 5.00—watch front bunker.", "Allen": "Career avg 4.00—smooth swing to middle green."}},
-            {"num": 10, "par": 3, "hcp": 7, "yds": 177, "tips": {"Scott": "Career avg 4.00—back 9 opener; 6-point tier.", "Troy": "Career avg 3.50—stroke hole, great start to back 9.", "Allen": "Career avg 4.00—stroke hole, solid par setup."}},
-            {"num": 11, "par": 3, "hcp": 17, "yds": 112, "tips": {"Scott": "Career avg 4.00—short hole; attack pin location.", "Troy": "Career avg 4.00—high par conversion rate.", "Allen": "Career avg 3.00—EXCELLENT SCORING HOLE!"}},
-            {"num": 12, "par": 3, "hcp": 5, "yds": 198, "tips": {"Scott": "Career avg 3.00—9-point tier, long iron test.", "Troy": "Career avg 2.50—stroke hole, YOUR BEST HOLE AT SALT POND!", "Allen": "Career avg 3.00—stroke hole, net birdie candidate!"}},
-            {"num": 13, "par": 3, "hcp": 11, "yds": 212, "tips": {"Scott": "Career avg 3.50—longest par 3 on back 9.", "Troy": "Career avg 3.00—stroke hole, high point yield.", "Allen": "Career avg 3.00—stroke hole, favor center green."}},
-            {"num": 14, "par": 3, "hcp": 13, "yds": 165, "tips": {"Scott": "Career avg 4.50—mid-iron approach.", "Troy": "Career avg 3.50—aggressive tee shot path.", "Allen": "Career avg 5.00—play safe layup/chip."}},
-            {"num": 15, "par": 3, "hcp": 15, "yds": 143, "tips": {"Scott": "Career avg 3.00—high par conversion hole.", "Troy": "Career avg 3.00—attack flag directly.", "Allen": "Career avg 3.00—great par performance."}},
-            {"num": 16, "par": 4, "hcp": 1, "yds": 260, "tips": {"Scott": "Career avg 5.00—HCP #1, 9-point tier, drivable par 4.", "Troy": "Career avg 5.00—stroke hole, keep drive straight.", "Allen": "Career avg 4.00—stroke hole, play safe layup."}},
-            {"num": 17, "par": 3, "hcp": 9, "yds": 170, "tips": {"Scott": "Career avg 5.00—penultimate par 3; 6-point tier.", "Troy": "Career avg 5.50—stroke hole, favor center green.", "Allen": "Career avg 4.00—stroke hole, net par candidate."}},
-            {"num": 18, "par": 3, "hcp": 3, "yds": 190, "tips": {"Scott": "Career avg 4.50—closing hole; 9-point tier finish.", "Troy": "Career avg 6.00—stroke hole, finish strong.", "Allen": "Career avg 3.00—stroke hole, YOUR BEST CLOSING HOLE!"}},
+            {"num": 1, "par": 4, "hcp": 5, "yds": 343, "tips": {"Scott": "6-point tier—solid opener, favor center fairway.", "Troy": "Stroke hole—take advantage of your extra stroke.", "Allen": "Stroke hole—keep tee shot in play."}},
+            {"num": 2, "par": 5, "hcp": 1, "yds": 536, "tips": {"Scott": "HCP #1 monster—9-point tier, play smart layups.", "Troy": "Stroke hole—avoid water/bunkers on left.", "Allen": "Stroke hole—you get a stroke; play for net par."}},
+            {"num": 3, "par": 4, "hcp": 7, "yds": 324, "tips": {"Scott": "6-point tier—short par 4, wedge in hand.", "Troy": "Stroke hole—favor center green.", "Allen": "Stroke hole—smooth tempo off tee."}},
+            {"num": 4, "par": 4, "hcp": 11, "yds": 276, "tips": {"Scott": "Drivable/short par 4—6-point tier, position over distance.", "Troy": "Stroke hole—great birdie/par opportunity.", "Allen": "Stroke hole—clean contact is priority."}},
+            {"num": 5, "par": 5, "hcp": 13, "yds": 475, "tips": {"Scott": "Reachable in 3—play safe layup.", "Troy": "Solid par 5 scoring chance.", "Allen": "Stroke hole—good spot for net par."}},
+            {"num": 6, "par": 3, "hcp": 17, "yds": 118, "tips": {"Scott": "Short iron in hand—attack pin location.", "Troy": "Easy iron distance—aim center green.", "Allen": "High point yield chance—trust club."}},
+            {"num": 7, "par": 4, "hcp": 3, "yds": 302, "tips": {"Scott": "9-point tier—favor left-center fairway.", "Troy": "Stroke hole—take extra club on approach.", "Allen": "Stroke hole—play center green."}},
+            {"num": 8, "par": 4, "hcp": 9, "yds": 335, "tips": {"Scott": "6-point tier—mid-handicap test, favor fairway.", "Troy": "Stroke hole—solid par candidate.", "Allen": "Stroke hole—keep drive in play."}},
+            {"num": 9, "par": 3, "hcp": 15, "yds": 140, "tips": {"Scott": "Front nine finish—aim for green center.", "Troy": "Comfortable iron range.", "Allen": "Great net score history."}},
+            {"num": 10, "par": 4, "hcp": 12, "yds": 342, "tips": {"Scott": "Back nine opener—6-point tier.", "Troy": "Stroke hole—favor right fairway.", "Allen": "Stroke hole—steady bogey/par."}},
+            {"num": 11, "par": 5, "hcp": 6, "yds": 498, "tips": {"Scott": "9-point tier—three clean shots to green.", "Troy": "Stroke hole—aggressive birdie path.", "Allen": "Stroke hole—make up points here."}},
+            {"num": 12, "par": 4, "hcp": 14, "yds": 298, "tips": {"Scott": "Short par 4—wedge approach.", "Troy": "High par conversion hole.", "Allen": "Stroke hole—attack pin."}},
+            {"num": 13, "par": 4, "hcp": 10, "yds": 335, "tips": {"Scott": "6-point tier—steady fairway placement.", "Troy": "Stroke hole—solid iron into green.", "Allen": "Stroke hole—smooth swing."}},
+            {"num": 14, "par": 4, "hcp": 2, "yds": 362, "tips": {"Scott": "HCP #2—9-point tier, guard against right hazard.", "Troy": "Stroke hole—play defensively.", "Allen": "Stroke hole—aim center green."}},
+            {"num": 15, "par": 3, "hcp": 16, "yds": 155, "tips": {"Scott": "High par conversion par 3.", "Troy": "Aim center green.", "Allen": "Smooth tempo."}},
+            {"num": 16, "par": 5, "hcp": 8, "yds": 429, "tips": {"Scott": "Short par 5—6-point tier, birdie opportunity.", "Troy": "Stroke hole—great point yield hole.", "Allen": "Stroke hole—great net score chance."}},
+            {"num": 17, "par": 3, "hcp": 18, "yds": 94, "tips": {"Scott": "Easiest hole on course—attack flag directly!", "Troy": "Short wedge—go for pin.", "Allen": "Easiest HCP rank—great par chance!"}},
+            {"num": 18, "par": 4, "hcp": 4, "yds": 353, "tips": {"Scott": "Closing hole—9-point tier, finish strong!", "Troy": "Stroke hole—solid drive to fairway center.", "Allen": "Stroke hole—protect your points lead!"}},
         ],
     },
 }
@@ -167,7 +167,7 @@ def get_total_standings():
     totals = {p: 0 for p in PLAYERS}
     for c_name, c_info in COURSES.items():
         s_diffs = get_strokes_off_lowest(c_name)
-        for h_num, gross_dict in st.session_state.scores[c_name].items():
+        for h_num, gross_dict in st.session_state.scores.get(c_name, {}).items():
             if len(gross_dict) == 3:
                 h_info = c_info["holes"][h_num - 1]
                 _, pts, _ = calculate_hole_points(
@@ -181,7 +181,7 @@ def get_course_standings(course_name):
     totals = {p: 0 for p in PLAYERS}
     c_info = COURSES[course_name]
     s_diffs = get_strokes_off_lowest(course_name)
-    for h_num, gross_dict in st.session_state.scores[course_name].items():
+    for h_num, gross_dict in st.session_state.scores.get(course_name, {}).items():
         if len(gross_dict) == 3:
             h_info = c_info["holes"][h_num - 1]
             _, pts, _ = calculate_hole_points(
@@ -216,378 +216,4 @@ def parse_spoken_text(text):
         return scores_found
 
     all_numbers = re.findall(r"\b([1-9]|1[0-5])\b", text_clean)
-    if len(all_numbers) >= 3:
-        player_order = ["Scott", "Troy", "Allen"]
-        for idx in range(3):
-            scores_found[player_order[idx]] = int(all_numbers[idx])
-
-    return scores_found
-
-# --- INITIALIZE SESSION STATE WITH FILE BACKUP ---
-if "scores" not in st.session_state:
-    st.session_state.scores = load_saved_scores()
-
-if "selected_hole" not in st.session_state:
-    st.session_state.selected_hole = 1
-
-if "selected_course" not in st.session_state:
-    st.session_state.selected_course = list(COURSES.keys())[0]
-
-selected_course = st.session_state.selected_course
-stroke_diffs = get_strokes_off_lowest(selected_course)
-
-course_data = COURSES[selected_course]
-hole_num = st.session_state.selected_hole
-hole_info = course_data["holes"][hole_num - 1]
-pts_val = get_hole_point_value(hole_info["hcp"])
-
-# =========================================================
-# 1. TOP HEADER: TITLE & 3 SCORE BOXES
-# =========================================================
-st.markdown(
-    "<h4 style='text-align: center; margin-top: -10px; margin-bottom: 8px;'>⛳ The Walker Cup 2026</h4>",
-    unsafe_allow_html=True,
-)
-
-live_totals = get_total_standings()
-top_score_cols = st.columns(3)
-for i, (player, initial) in enumerate(INITIALS.items()):
-    with top_score_cols[i]:
-        card_html = f"""
-        <div style="background-color: #0f172a; border: 1px solid #334155; border-radius: 8px; padding: 6px 2px; text-align: center; margin-bottom: 10px;">
-            <div style="font-size: 13px; font-weight: 700; color: #94a3b8; letter-spacing: 1px;">{initial}</div>
-            <div style="font-size: 28px; font-weight: 900; color: #ffffff; line-height: 1.1;">{live_totals[player]}</div>
-        </div>
-        """
-        st.markdown(card_html, unsafe_allow_html=True)
-
-# =========================================================
-# 2. HOLE INFORMATION & STROKE BADGES
-# =========================================================
-course_short_name = selected_course.split("(")[0].strip().upper()
-
-hdr_html = f"""
-<div style="background-color: #15803d; padding: 8px 12px; border-radius: 8px; margin-top: 5px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
-    <span style="color: #ffffff; font-size: 18px; font-weight: 800;">⛳ {course_short_name} — HOLE {hole_num}</span>
-    <span style="color: #ffffff; font-size: 14px; font-weight: 700;">PAR <b>{hole_info['par']}</b> &nbsp;|&nbsp; <b>{pts_val} PTS</b> &nbsp;|&nbsp; HCP <b>{hole_info['hcp']}</b></span>
-</div>
-"""
-st.markdown(hdr_html, unsafe_allow_html=True)
-
-troy_strokes = 1 if stroke_diffs["Troy"] >= hole_info["hcp"] else 0
-allen_strokes = 1 if stroke_diffs["Allen"] >= hole_info["hcp"] else 0
-
-troy_bg = "#dc2626" if troy_strokes > 0 else "#334155"
-allen_bg = "#dc2626" if allen_strokes > 0 else "#334155"
-
-troy_txt = f"+{troy_strokes} Stroke" if troy_strokes > 0 else "Scratch"
-allen_txt = f"+{allen_strokes} Stroke" if allen_strokes > 0 else "Scratch"
-
-badge_cols = st.columns(2)
-with badge_cols[0]:
-    st.markdown(
-        f"""
-        <div style="background-color: {troy_bg}; color: white; padding: 6px 4px; border-radius: 6px; text-align: center; font-size: 13px; margin-bottom: 8px;">
-            <b>Troy</b><br><span style="font-size: 14px; font-weight: 900;">{troy_txt}</span>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-with badge_cols[1]:
-    st.markdown(
-        f"""
-        <div style="background-color: {allen_bg}; color: white; padding: 6px 4px; border-radius: 6px; text-align: center; font-size: 13px; margin-bottom: 8px;">
-            <b>Allen</b><br><span style="font-size: 14px; font-weight: 900;">{allen_txt}</span>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-
-# =========================================================
-# 2B. WALKER CUP INTELLIGENCE ENGINE TIPS
-# =========================================================
-hole_tips = hole_info.get("tips", {})
-tip_scott = hole_tips.get("Scott", "Play your standard line.")
-tip_troy = hole_tips.get("Troy", "Play your standard line.")
-tip_allen = hole_tips.get("Allen", "Play your standard line.")
-
-st.markdown(
-    f"""
-    <div style="background-color: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 8px 12px; margin-bottom: 12px;">
-        <div style="font-size: 11px; font-weight: 800; color: #38bdf8; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">
-            📊 Walker Cup Intelligence Engine:
-        </div>
-        <div style="font-size: 12px; color: #e2e8f0; margin-bottom: 3px;">
-            <b>SCW:</b> {tip_scott}
-        </div>
-        <div style="font-size: 12px; color: #e2e8f0; margin-bottom: 3px;">
-            <b>TAC:</b> {tip_troy}
-        </div>
-        <div style="font-size: 12px; color: #e2e8f0;">
-            <b>ATN:</b> {tip_allen}
-        </div>
-    </div>
-    """,
-    unsafe_allow_html=True
-)
-
-# =========================================================
-# 3. HOLE SELECTION & GROSS SCORE ENTRY
-# =========================================================
-st.markdown(
-    """
-    <style>
-    div[data-testid="stHorizontalBlock"] {
-        display: flex !important;
-        flex-direction: row !important;
-        flex-wrap: nowrap !important;
-        gap: 2px !important;
-    }
-    div[data-testid="stHorizontalBlock"] > div {
-        min-width: 0 !important;
-        flex: 1 1 0 !important;
-    }
-    div[data-testid="stHorizontalBlock"] button {
-        padding: 4px 0px !important;
-        font-size: 13px !important;
-    }
-    </style>
-""",
-    unsafe_allow_html=True,
-)
-
-st.write("**Select Hole:**")
-
-cols_front = st.columns(9)
-for h_i in range(1, 10):
-    btn_type = (
-        "primary" if st.session_state.selected_hole == h_i else "secondary"
-    )
-    if cols_front[h_i - 1].button(
-        str(h_i), key=f"btn_{h_i}", type=btn_type, use_container_width=True
-    ):
-        st.session_state.selected_hole = h_i
-        st.rerun()
-
-cols_back = st.columns(9)
-for h_i in range(10, 19):
-    btn_type = (
-        "primary" if st.session_state.selected_hole == h_i else "secondary"
-    )
-    if cols_back[h_i - 10].button(
-        str(h_i), key=f"btn_{h_i}", type=btn_type, use_container_width=True
-    ):
-        st.session_state.selected_hole = h_i
-        st.rerun()
-
-st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
-st.subheader("📝 Enter Gross Scores")
-
-voice_key = f"voice_{selected_course}_{hole_num}"
-
-voice_input = st.text_input(
-    "🎙️ Dictate Scores (e.g. 'Scott 4 Troy 6 Allen 5')",
-    key=voice_key,
-)
-
-saved_scores = st.session_state.scores[selected_course].get(hole_num, {})
-current_scores = {p: saved_scores.get(p, hole_info["par"]) for p in PLAYERS}
-
-if voice_input:
-    parsed_results = parse_spoken_text(voice_input)
-    for p_name, val in parsed_results.items():
-        current_scores[p_name] = val
-        widget_key = f"{selected_course}_{hole_num}_{p_name}"
-        st.session_state[widget_key] = val
-
-cols = st.columns(3)
-user_inputs = {}
-for i, p in enumerate(PLAYERS.keys()):
-    w_key = f"{selected_course}_{hole_num}_{p}"
-    if w_key not in st.session_state:
-        st.session_state[w_key] = current_scores[p]
-
-    with cols[i]:
-        user_inputs[p] = st.number_input(
-            f"{p}",
-            min_value=1,
-            max_value=15,
-            key=w_key,
-        )
-
-# --- SAVE SCORE & PERSIST TO FILE ---
-if st.button("💾 Save Score for Hole", type="primary", use_container_width=True):
-    st.session_state.scores[selected_course][hole_num] = user_inputs
-    save_scores_to_disk()
-    st.success(f"Scores saved for Hole {hole_num}!")
-
-    if st.session_state.selected_hole < 18:
-        st.session_state.selected_hole += 1
-
-    st.rerun()
-
-# =========================================================
-# 4. CURRENT COURSE LEADERBOARD STANDINGS
-# =========================================================
-st.markdown("<div style='margin-top: 15px;'></div>", unsafe_allow_html=True)
-st.subheader(f"🏆 Round Standings ({selected_course})")
-
-course_standings = get_course_standings(selected_course)
-
-st.markdown(
-    """
-    <style>
-    .leaderboard-card {
-        padding: 12px 18px;
-        border-radius: 10px;
-        margin-bottom: 10px;
-        font-size: 18px;
-        font-weight: bold;
-        display: flex;
-        justify-content: space-between;
-    }
-    .first-place { background-color: #ffd700; color: #000; }
-    .second-place { background-color: #c0c0c0; color: #000; }
-    .third-place { background-color: #cd7f32; color: #fff; }
-    </style>
-""",
-    unsafe_allow_html=True,
-)
-
-sorted_standings = sorted(
-    course_standings.items(), key=lambda x: x[1], reverse=True
-)
-styles = ["first-place", "second-place", "third-place"]
-badges = ["🥇", "🥈", "🥉"]
-
-for rank, (player, score) in enumerate(sorted_standings):
-    badge = badges[rank]
-    style = styles[rank]
-    st.markdown(
-        f"""
-        <div class="leaderboard-card {style}">
-            <span>{badge} #{rank+1} {player}</span>
-            <span>{score} PTS</span>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-
-# =========================================================
-# 5. MINI SCORECARD
-# =========================================================
-st.divider()
-st.subheader("📋 Mini Scorecard")
-
-table_rows = ""
-for h in course_data["holes"]:
-    h_no = h["num"]
-    h_val = get_hole_point_value(h["hcp"])
-
-    scott_str, troy_str, allen_str = "-", "-", "-"
-    scott_style, troy_style, allen_style = "", "", ""
-
-    if h_no in st.session_state.scores[selected_course]:
-        gross = st.session_state.scores[selected_course][h_no]
-        if len(gross) == 3:
-            nets, pts, winners = calculate_hole_points(
-                gross, h["hcp"], stroke_diffs
-            )
-
-            scott_str = f"{nets['Scott']} ({gross['Scott']})"
-            troy_str = f"{nets['Troy']} ({gross['Troy']})"
-            allen_str = f"{nets['Allen']} ({gross['Allen']})"
-
-            is_tie = len(winners) > 1
-
-            if "Scott" in winners:
-                scott_style = (
-                    "background-color: #eab308; color: #000000; font-weight: bold;"
-                    if is_tie
-                    else "background-color: #15803d; color: #ffffff; font-weight: bold;"
-                )
-            if "Troy" in winners:
-                troy_style = (
-                    "background-color: #eab308; color: #000000; font-weight: bold;"
-                    if is_tie
-                    else "background-color: #15803d; color: #ffffff; font-weight: bold;"
-                )
-            if "Allen" in winners:
-                allen_style = (
-                    "background-color: #eab308; color: #000000; font-weight: bold;"
-                    if is_tie
-                    else "background-color: #15803d; color: #ffffff; font-weight: bold;"
-                )
-
-    row_html = f"""
-        <tr>
-            <td style="padding: 6px 4px; border: 1px solid #334155; text-align: center;"><b>#{h_no}</b></td>
-            <td style="padding: 6px 4px; border: 1px solid #334155; text-align: center;">{h['yds']}</td>
-            <td style="padding: 6px 4px; border: 1px solid #334155; text-align: center;">{h['par']}</td>
-            <td style="padding: 6px 4px; border: 1px solid #334155; text-align: center;">{h['hcp']}</td>
-            <td style="padding: 6px 4px; border: 1px solid #334155; text-align: center;"><b>{h_val}</b></td>
-            <td style="padding: 6px 4px; border: 1px solid #334155; text-align: center; {scott_style}">{scott_str}</td>
-            <td style="padding: 6px 4px; border: 1px solid #334155; text-align: center; {troy_style}">{troy_str}</td>
-            <td style="padding: 6px 4px; border: 1px solid #334155; text-align: center; {allen_style}">{allen_str}</td>
-        </tr>
-    """
-    table_rows += row_html
-
-full_html = f"""
-<!DOCTYPE html>
-<html>
-<head>
-    <style>
-        body {{ font-family: sans-serif; background-color: transparent; color: #ffffff; margin: 0; padding: 0; }}
-        table {{ width: 100%; border-collapse: collapse; font-size: 13px; }}
-        th {{ background-color: #0f172a; color: #ffffff; padding: 8px 4px; border: 1px solid #334155; font-size: 12px; }}
-    </style>
-</head>
-<body>
-    <table>
-        <thead>
-            <tr>
-                <th>Hole</th>
-                <th>Yds</th>
-                <th>Par</th>
-                <th>Hcp</th>
-                <th>Pts</th>
-                <th>Scott</th>
-                <th>Troy</th>
-                <th>Allen</th>
-            </tr>
-        </thead>
-        <tbody>
-            {table_rows}
-        </tbody>
-    </table>
-</body>
-</html>
-"""
-
-components.html(full_html, height=520, scrolling=True)
-
-# =========================================================
-# 6. COURSE SELECTOR & RESET BUTTON (BOTTOM)
-# =========================================================
-st.divider()
-
-b_col1, b_col2 = st.columns(2)
-with b_col1:
-    selected_course_input = st.selectbox(
-        "⚙️ Select Course / Round",
-        list(COURSES.keys()),
-        index=list(COURSES.keys()).index(st.session_state.selected_course),
-        key="course_picker_bottom",
-    )
-    if selected_course_input != st.session_state.selected_course:
-        st.session_state.selected_course = selected_course_input
-        st.rerun()
-
-with b_col2:
-    st.write("&nbsp;")
-    if st.button("🔄 Reset Tournament Scores", use_container_width=True):
-        if os.path.exists(SAVE_FILE):
-            os.remove(SAVE_FILE)
-        st.session_state.scores = {c: {} for c in COURSES}
-        st.rerun()
+    if len(all_
