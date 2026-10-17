@@ -235,6 +235,21 @@ if "selected_hole" not in st.session_state:
 if "selected_course" not in st.session_state:
     st.session_state.selected_course = list(COURSES.keys())[0]
 
+# --- SYNC CLIENT LOCALSTORAGE TO STREAMLIT STATE ---
+query_params = st.query_params
+if "wc_client_data" in query_params:
+    try:
+        client_scores = json.loads(query_params["wc_client_data"])
+        for c_name, h_dict in client_scores.items():
+            if c_name in COURSES:
+                if c_name not in st.session_state.scores:
+                    st.session_state.scores[c_name] = {}
+                for h_str, p_scores in h_dict.items():
+                    st.session_state.scores[c_name][int(h_str)] = p_scores
+        save_scores_to_disk()
+    except Exception:
+        pass
+
 selected_course = st.session_state.selected_course
 if selected_course not in COURSES:
     selected_course = list(COURSES.keys())[0]
@@ -246,6 +261,26 @@ course_data = COURSES[selected_course]
 hole_num = st.session_state.selected_hole
 hole_info = course_data["holes"][hole_num - 1]
 pts_val = get_hole_point_value(hole_info["hcp"])
+
+# --- LOCALSTORAGE AUTO-RESTORE script ---
+js_scores_json = json.dumps(st.session_state.scores)
+sync_html = f"""
+<script>
+    const currentScores = {js_scores_json};
+    if (Object.keys(currentScores).length > 0) {{
+        localStorage.setItem('wc_2026_scores', JSON.stringify(currentScores));
+    }}
+    
+    const localData = localStorage.getItem('wc_2026_scores');
+    const urlParams = new URLSearchParams(window.location.search);
+    if (localData && !urlParams.has('wc_client_data')) {{
+        const url = new URL(window.location);
+        url.searchParams.set('wc_client_data', localData);
+        window.location.href = url.href;
+    }}
+</script>
+"""
+components.html(sync_html, height=0)
 
 # =========================================================
 # 1. TOP HEADER: TITLE & 3 SCORE BOXES
@@ -606,8 +641,4 @@ with b_col1:
 
 with b_col2:
     st.write("&nbsp;")
-    if st.button("🔄 Reset Tournament Scores", use_container_width=True):
-        if os.path.exists(SAVE_FILE):
-            os.remove(SAVE_FILE)
-        st.session_state.scores = {c: {} for c in COURSES}
-        st.rerun()
+    if st.button("🔄 Reset Tournament Scores", use_container_width=True
