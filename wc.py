@@ -641,4 +641,9 @@ with b_col1:
 
 with b_col2:
     st.write("&nbsp;")
-    if st.button("🔄 Reset Tournament Scores", use_container_width=True
+    if st.button("🔄 Reset Tournament Scores", use_container_width=True):
+        if os.path.exists(SAVE_FILE):
+            os.remove(SAVE_FILE)
+        st.session_state.scores = {c: {} for c in COURSES}
+        st.components.v1.html("<script>localStorage.removeItem('wc_2026_scores');</script>", height=0)
+        st.rerun()
