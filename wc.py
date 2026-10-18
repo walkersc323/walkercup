@@ -225,6 +225,41 @@ def parse_spoken_text(text):
 
     return scores_found
 
+def generate_round_summary_csv(course_name, course_info, stroke_diffs, course_scores):
+    rows = []
+    for h in course_info["holes"]:
+        h_no = h["num"]
+        h_hcp = h["hcp"]
+        h_val = get_hole_point_value(h_hcp)
+        gross_dict = course_scores.get(h_no, {})
+
+        row = {
+            "Hole": h_no,
+            "Yards": h["yds"],
+            "Par": h["par"],
+            "Hcp Rank": h_hcp,
+            "Points Available": h_val
+        }
+
+        if len(gross_dict) == 3:
+            net_dict, pts_won, _ = calculate_hole_points(
+                gross_dict, h_hcp, stroke_diffs
+            )
+            for p in PLAYERS:
+                row[f"{p} Gross"] = gross_dict[p]
+                row[f"{p} Net"] = net_dict[p]
+                row[f"{p} Points Earned"] = pts_won[p]
+        else:
+            for p in PLAYERS:
+                row[f"{p} Gross"] = None
+                row[f"{p} Net"] = None
+                row[f"{p} Points Earned"] = 0
+
+        rows.append(row)
+
+    df = pd.DataFrame(rows)
+    return df.to_csv(index=False).encode("utf-8")
+
 # --- INITIALIZE SESSION STATE WITH FILE BACKUP ---
 if "scores" not in st.session_state:
     st.session_state.scores = load_saved_scores()
@@ -262,7 +297,7 @@ hole_num = st.session_state.selected_hole
 hole_info = course_data["holes"][hole_num - 1]
 pts_val = get_hole_point_value(hole_info["hcp"])
 
-# --- LOCALSTORAGE AUTO-RESTORE script ---
+# --- LOCALSTORAGE AUTO-RESTORE SCRIPT ---
 js_scores_json = json.dumps(st.session_state.scores)
 sync_html = f"""
 <script>
@@ -529,10 +564,31 @@ for rank, (player, score) in enumerate(sorted_standings):
     )
 
 # =========================================================
-# 5. MINI SCORECARD
+# 5. MINI SCORECARD & ROUND COMPLETION DOWNLOAD
 # =========================================================
 st.divider()
 st.subheader("📋 Mini Scorecard")
+
+active_course_scores = st.session_state.scores.get(selected_course, {})
+completed_holes = len([h for h in range(1, 19) if len(active_course_scores.get(h, {})) == 3])
+
+if completed_holes == 18:
+    st.success("🎉 Round Complete! All 18 holes logged.")
+    csv_bytes = generate_round_summary_csv(
+        selected_course,
+        course_data,
+        stroke_diffs,
+        active_course_scores
+    )
+    safe_filename = f"Walker_Cup_{selected_course.split('(')[0].strip().replace(' ', '_')}_Full_Round.csv"
+    st.download_button(
+        label="📥 Save / Download Full Round CSV",
+        data=csv_bytes,
+        file_name=safe_filename,
+        mime="text/csv",
+        use_container_width=True,
+        type="primary"
+    )
 
 table_rows = ""
 for h in course_data["holes"]:
@@ -542,8 +598,8 @@ for h in course_data["holes"]:
     scott_str, troy_str, allen_str = "-", "-", "-"
     scott_style, troy_style, allen_style = "", "", ""
 
-    if h_no in st.session_state.scores.get(selected_course, {}):
-        gross = st.session_state.scores[selected_course][h_no]
+    if h_no in active_course_scores:
+        gross = active_course_scores[h_no]
         if len(gross) == 3:
             nets, pts, winners = calculate_hole_points(
                 gross, h["hcp"], stroke_diffs
@@ -645,5 +701,5 @@ with b_col2:
         if os.path.exists(SAVE_FILE):
             os.remove(SAVE_FILE)
         st.session_state.scores = {c: {} for c in COURSES}
-        st.components.v1.html("<script>localStorage.removeItem('wc_2026_scores');</script>", height=0)
+        components.html("<script>localStorage.removeItem('wc_2026_scores');</script>", height=0)
         st.rerun()
