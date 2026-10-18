@@ -270,6 +270,9 @@ if "selected_hole" not in st.session_state:
 if "selected_course" not in st.session_state:
     st.session_state.selected_course = list(COURSES.keys())[0]
 
+if "confirm_reset" not in st.session_state:
+    st.session_state.confirm_reset = False
+
 # --- SYNC CLIENT LOCALSTORAGE TO STREAMLIT STATE ---
 query_params = st.query_params
 if "wc_client_data" in query_params:
@@ -679,7 +682,7 @@ full_html = f"""
 components.html(full_html, height=520, scrolling=True)
 
 # =========================================================
-# 6. COURSE SELECTOR & RESET BUTTON (BOTTOM)
+# 6. COURSE SELECTOR & RESET BUTTON WITH CONFIRMATION
 # =========================================================
 st.divider()
 
@@ -697,9 +700,22 @@ with b_col1:
 
 with b_col2:
     st.write("&nbsp;")
-    if st.button("🔄 Reset Tournament Scores", use_container_width=True):
-        if os.path.exists(SAVE_FILE):
-            os.remove(SAVE_FILE)
-        st.session_state.scores = {c: {} for c in COURSES}
-        components.html("<script>localStorage.removeItem('wc_2026_scores');</script>", height=0)
-        st.rerun()
+    if not st.session_state.confirm_reset:
+        if st.button("🔄 Reset Tournament Scores", use_container_width=True):
+            st.session_state.confirm_reset = True
+            st.rerun()
+    else:
+        st.warning("⚠️ Wipe all scores?")
+        r_col1, r_col2 = st.columns(2)
+        with r_col1:
+            if st.button("✅ Confirm", type="primary", use_container_width=True):
+                if os.path.exists(SAVE_FILE):
+                    os.remove(SAVE_FILE)
+                st.session_state.scores = {c: {} for c in COURSES}
+                st.session_state.confirm_reset = False
+                components.html("<script>localStorage.removeItem('wc_2026_scores');</script>", height=0)
+                st.rerun()
+        with r_col2:
+            if st.button("❌ Cancel", use_container_width=True):
+                st.session_state.confirm_reset = False
+                st.rerun()
